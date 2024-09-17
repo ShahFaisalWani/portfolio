@@ -1,0 +1,28 @@
+@font-face {
+	font-family: 'GT Regular';
+	src: url('/src/assets/fonts/GT-America-Standard-Regular.woff2') format('woff2');
+	font-weight: 300;
+	font-style: normal;
+	font-display: block;
+}
+@font-face {
+	font-family: 'GT Bold';
+	src: url('/src/assets/fonts/GT-America-Standard-Bold.ttf') format('woff2');
+	font-weight: 300;
+	font-style: normal;
+	font-display: block;
+}
+@font-face {
+	font-family: 'TT Ramillas Light';
+	src: url('/src/assets/fonts/TTRamillasLight.ttf') format('woff2');
+	font-weight: 300;
+	font-style: normal;
+	font-display: block;
+}
+@font-face {
+	font-family: 'TT Ramillas Stroke';
+	src: url('/src/assets/fonts/TTRamillasStroke.ttf') format('woff2');
+	font-weight: 300;
+	font-style: normal;
+	font-display: block;
+}
