@@ -323,6 +323,12 @@ export default function TechStackHoneyComb() {
       --border: 2px;
       --gap: 0.2em;
     }
+
+    @media (max-width: 400px) {
+      --edge: 4em;
+      --border: 2px;
+      --gap: 0.2em;
+    }
   `;
 
   const containerVariants = {

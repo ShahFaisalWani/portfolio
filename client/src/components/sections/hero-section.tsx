@@ -25,12 +25,6 @@ export const HeroSection: React.FC = () => {
     setLetterMovements(text1.concat(text2).split("").map(() => getRandomMovement()));
   }
 
-  const handleLetterAnimationComplete = (index: number) => {
-    setLetterMovements((prevMovements) =>
-      prevMovements.map((movement, i) => (i === index ? getRandomMovement() : movement))
-    );
-  };
-
   const text1 = "Hello,";
   const text2 = "Again.";
 
@@ -38,8 +32,8 @@ export const HeroSection: React.FC = () => {
     <>
       <motion.div
         className="fixed w-screen h-screen left-0 top-0 bg-root-contrast z-[11]"
-        initial={{ y: 0 }}
-        animate={{ y: -window.innerHeight }}
+        initial={{ y: 0, opacity: 1 }}
+        animate={{ y: -window.innerHeight - 100 }}
         transition={{ delay: 2.8, duration: 0.7, ease: "easeOut" }}
         onAnimationStart={onAnimationStart}
         onAnimationComplete={onAnimationComplete}
@@ -70,10 +64,11 @@ export const HeroSection: React.FC = () => {
                     initial={{ x: 0, y: 0 }}
                     animate={letterMovements[index]}
                     transition={{
-                      duration: 2,
-                      ease: ["easeInOut"],
+                      duration: 4,
+                      ease: [0.42, 0, 0.58, 1],
+                      repeat: Infinity,
+                      repeatType: 'reverse',
                     }}
-                    onAnimationComplete={() => handleLetterAnimationComplete(index)}
                     data-cursor="project"
                   >
                     <motion.h1
@@ -112,10 +107,11 @@ export const HeroSection: React.FC = () => {
                       initial={{ x: 0, y: 0 }}
                       animate={letterMovements[idx]}
                       transition={{
-                        duration: 2,
-                        ease: ["easeInOut"],
+                        duration: 4,
+                        ease: [0.42, 0, 0.58, 1],
+                        repeat: Infinity,
+                        repeatType: 'reverse',
                       }}
-                      onAnimationComplete={() => handleLetterAnimationComplete(idx)}
                       data-cursor="project"
                     >
                       <motion.h1

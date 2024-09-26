@@ -26,7 +26,7 @@ export const AboutSection: React.FC = () => {
               )} />
             </MoveWrapper>
             <div className="text-left flex flex-col gap-3">
-              <AnimatedText className="text-lg" text="Hi, I'm Faisal, a Software Engineer with a passion for bridging technology and innovation - dedicated to building scalable web applications and deploying AI-driven solutions." />
+              <AnimatedText className="text-lg" text="Hi, I'm Faisal, a Software Engineer passionate about building scalable web apps, integrating AI models and blockchain" />
               <AnimatedText className="text-base leading-6" text="I thrive on solving complex challenges and am constantly learning new technologies. I enjoy bringing ideas to life through clean, efficient code and am always looking for opportunities to develop high-impact solutions." />
               <AnimatedText className="text-md font-gt-bold leading-6" text="I'm ready to take on exciting challenges and grow as part of a dynamic team in the tech industry." />
             </div>

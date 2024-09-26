@@ -14,10 +14,13 @@ function TrafficMonitor() {
       }
     };
 
-    sendTrafficData();
+    if (location.pathname === '/') {
+      sendTrafficData();
+    }
   }, [location]);
 
   return null;
 }
 
 export default TrafficMonitor;
+

@@ -5,8 +5,9 @@ import { motion } from 'framer-motion';
 import React, { useState, useRef } from "react";
 import emailjs from '@emailjs/browser';
 import { cn } from "@lib/utils";
+import CloseBtn from "./close-btn";
 
-const ContactForm: React.FC<{ onClose: () => void }> = () => {
+const ContactForm: React.FC<{ onClose: () => void }> = (props) => {
   const form = useRef<HTMLFormElement | null>(null);
   const [status, setStatus] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -79,38 +80,18 @@ const ContactForm: React.FC<{ onClose: () => void }> = () => {
     <div className="flex flex-col gap-8">
       <div className="flex justify-between items-center">
         <h1 className="text-4xl sm:text-6xl font-bold text-primary-contrast">Contact Me</h1>
-        <motion.button
+        {/* <motion.button
           type="submit"
-          className={cn("rounded-xl px-6 py-4 text-text text-lg flex gap-4 w-40 h-20 justify-center items-center font-gt-bold relative", status === 'success' ? "bg-green" : status === 'error' ? "bg-red-500" : "bg-primary-20")}
+          className="rounded-xl px-4 py-2 text-lg flex gap-4 justify-center items-center font-gt-bold relative bg-primary-20 text-text"
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           transition={{ type: "spring", stiffness: 300, damping: 20 }}
           disabled={loading}
-          onClick={sendEmail}
+          onClick={() => props.onClose()}
         >
-          {loading ? (
-            <motion.div
-              className="loader border-4 border-t-transparent border-white rounded-full w-10 h-10"
-              animate={{ rotate: 360 }}
-              transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
-            />
-          ) : status === 'success' ? (
-            <>
-              <span className="text-white">Done</span>
-              <FontAwesomeIcon icon={faCheckCircle} size="xl" className="text-white" />
-            </>
-          ) : status === 'error' ? (
-            <>
-              <span className="text-white">Failed</span>
-              <FontAwesomeIcon icon={faFrown} size="xl" className="text-white" />
-            </>
-          ) : (
-            <>
-              <span className="text-white">Send</span>
-              <FontAwesomeIcon icon={faPaperPlane} size="xl" className="text-white" />
-            </>
-          )}
-        </motion.button>
+          &times;
+        </motion.button> */}
+        <CloseBtn onClick={props.onClose} />
       </div>
 
       <form ref={form} className="flex flex-col gap-4">
@@ -149,7 +130,38 @@ const ContactForm: React.FC<{ onClose: () => void }> = () => {
           {errors.message && <span className="text-red-400 text-sm">{errors.message}</span>}
         </label>
       </form>
-      <SocialBar />
+      <motion.button
+        type="submit"
+        className={cn("rounded-xl m-auto px-6 py-4 text-text text-lg flex gap-4 w-40 h-20 justify-center items-center font-gt-bold relative", status === 'success' ? "bg-green" : status === 'error' ? "bg-red-500" : "bg-primary-20")}
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        transition={{ type: "spring", stiffness: 300, damping: 20 }}
+        disabled={loading}
+        onClick={sendEmail}
+      >
+        {loading ? (
+          <motion.div
+            className="loader border-4 border-t-transparent border-white rounded-full w-10 h-10"
+            animate={{ rotate: 360 }}
+            transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
+          />
+        ) : status === 'success' ? (
+          <>
+            <span className="text-white">Done</span>
+            <FontAwesomeIcon icon={faCheckCircle} size="xl" className="text-white" />
+          </>
+        ) : status === 'error' ? (
+          <>
+            <span className="text-white">Failed</span>
+            <FontAwesomeIcon icon={faFrown} size="xl" className="text-white" />
+          </>
+        ) : (
+          <>
+            <span className="text-white">Send</span>
+            <FontAwesomeIcon icon={faPaperPlane} size="xl" className="text-white" />
+          </>
+        )}
+      </motion.button>
     </div>
   );
 };

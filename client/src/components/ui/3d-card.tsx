@@ -87,7 +87,7 @@ export const CardContainer: React.FC<CardContainerProps> = ({
     <MouseEnterContext.Provider value={[isMouseNear, setIsMouseNear]}>
       <div
         className={cn(
-          "flex items-center justify-center",
+          // "flex items-center justify-center",
           containerClassName,
         )}
         style={{
@@ -173,7 +173,7 @@ export const CardItem: React.FC<CardItemProps> = ({
   return (
     <Tag
       ref={ref}
-      className={cn("w-fit transition duration-200 ease-linear", className)}
+      className={cn("transition duration-200 ease-linear", className)}
       {...rest}
     >
       {children}

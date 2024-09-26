@@ -13,6 +13,7 @@ const Navbar: React.FC = () => {
     event.preventDefault();
     const section = document.getElementById(sectionId);
     if (section && sectionId !== "section_home") {
+      console.log('smooth', sectionId)
       section.scrollIntoView({ behavior: "smooth" });
     }
   };
@@ -27,11 +28,14 @@ const Navbar: React.FC = () => {
           <img src={Logo} className="text-2xl" alt="Vite logo" />
         </a>
         <div className="flex gap-[5rem] text-3xl w-1/2 text-primary max-sm:hidden">
-          <HoverLink href="#section_home" onClick={(event) => handleScroll(event, "section_about")} className="max-sm:hidden">
+          <HoverLink href="#section_about" onClick={(event) => handleScroll(event, "section_about")} className="max-sm:hidden">
             About
           </HoverLink>
           <HoverLink href="#section_work" onClick={(event) => handleScroll(event, "section_work")} className="max-sm:hidden">
             Work
+          </HoverLink>
+          <HoverLink href="#section_projects" onClick={(event) => handleScroll(event, "section_projects")} className="max-sm:hidden">
+            Projects
           </HoverLink>
           <HoverLink onClick={openModal}>
             Contact

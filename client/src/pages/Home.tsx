@@ -2,8 +2,10 @@ import { HeroSection } from "@components/sections/hero-section";
 import { AboutSection } from "@components/sections/about-section";
 import { ExperienceSection } from "@components/sections/experience-section";
 import ProjectSection from "@components/sections/project-section";
-import { AchievementSection } from "@components/sections/achievement-section";
+import { CertSection } from "@components/sections/cert-section";
 import TrafficMonitor from "@components/traffic-monitor";
+import { FootballSection } from "@components/sections/football-sections";
+import { SocialBar } from "@components/social-bar";
 
 const Home = () => {
 
@@ -20,9 +22,19 @@ const Home = () => {
 
       <section className="h-fit w-full" id="section_work">
         <ExperienceSection />
-        <ProjectSection />
-        <AchievementSection />
       </section>
+
+      <section className="h-fit w-full" id="section_projects">
+        <ProjectSection />
+        <CertSection />
+        <FootballSection />
+      </section>
+
+      <footer className="flex flex-col justify-between items-center gap-10 py-20 bg-bg mt-20">
+        <h1 className="text-center">Thanks for visiting my portfolio</h1>
+        <hr className="hr-text w-[90vw] sm:w-[70vw] font-ramillas-light text-3xl" data-content="Shah Faisal Wani"></hr>
+        <SocialBar isHome={false} />
+      </footer>
 
     </div>
   );
