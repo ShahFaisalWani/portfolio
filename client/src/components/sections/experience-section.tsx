@@ -1,23 +1,3 @@
-// import React from 'react'
-// import { motion } from 'framer-motion'
-
-// export const ExperienceSection: React.FC = () => {
-//   return (
-//     <div className="flex flex-col p-16 justify-center pt-10">
-//       <div className="flex justify-start leading-none">
-//         <motion.h1
-//           className="font-ramillas-light text-6xl sm:text-4xl md:text-7xl"
-//           initial={{ y: 100, opacity: 0 }}
-//           whileInView={{ y: 0, opacity: 1 }}
-//           transition={{ duration: 0.5, ease: "easeOut" }}
-//           data-cursor="project"
-//         >
-//           Experience
-//         </motion.h1>
-//       </div>
-//     </div >
-//   )
-// }
 import React from "react";
 import { motion } from "framer-motion";
 import { cn } from "@lib/utils";
@@ -62,43 +42,6 @@ const experiences = [
   },
 ];
 
-interface ExperienceItemProps {
-  role: string;
-  company: string;
-  duration: string;
-  description: string[];
-  href?: string;
-}
-
-const ExperienceItem: React.FC<ExperienceItemProps> = ({
-  role,
-  company,
-  duration,
-  description,
-  href
-}) => {
-  return (
-    <motion.div
-      className="relative mb-8 pl-10"
-      initial={{ opacity: 0, y: 50 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.8 }}
-      transition={{ duration: 0.5, ease: "easeOut" }}
-    >
-      <div className="absolute -left-1.5 top-2 w-5 h-5 bg-text rounded-full"></div>
-      <div>
-        <h2 className="text-2xl font-bold whitespace-nowrap">{role}</h2>
-        <a href={href} target="_blank" className={cn('text-text-20', href && 'hover:underline')}>{company} | {duration}</a>
-        <ul className="list-disc ml-5 mt-2 text-text-10">
-          {description.map((desc, index) => (
-            <li key={index} className="text-md">{desc}</li>
-          ))}
-        </ul>
-      </div>
-    </motion.div>
-  );
-};
-
 export const ExperienceSection: React.FC = () => {
   return (
     <div className="flex flex-col p-4 sm:p-16 pt-4">
@@ -128,6 +71,48 @@ export const ExperienceSection: React.FC = () => {
         ))}
       </div>
     </div>
+  );
+};
+
+interface ExperienceItemProps {
+  role: string;
+  company: string;
+  duration: string;
+  description: string[];
+  href?: string;
+}
+
+const ExperienceItem: React.FC<ExperienceItemProps> = ({
+  role,
+  company,
+  duration,
+  description,
+  href
+}) => {
+  return (
+    <motion.div
+      className={cn('relative mb-8 pl-10', href && 'cursor-pointer')}
+      initial={{ opacity: 0, y: 50 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.8 }}
+      transition={{ duration: 0.5, ease: "easeOut" }}
+      onClick={() => {
+        if (href) {
+          window.open(href, "_blank");
+        }
+      }}
+    >
+      <div className="absolute -left-1.5 top-2 w-5 h-5 bg-text rounded-full"></div>
+      <div>
+        <h2 className="text-2xl font-bold whitespace-nowrap">{role}</h2>
+        <a href={href} target="_blank" className={cn('text-text-20', href && 'hover:underline')}>{company} | {duration}</a>
+        <ul className="list-disc ml-5 mt-2 text-text-10">
+          {description.map((desc, index) => (
+            <li key={index} className="text-md">{desc}</li>
+          ))}
+        </ul>
+      </div>
+    </motion.div>
   );
 };
 

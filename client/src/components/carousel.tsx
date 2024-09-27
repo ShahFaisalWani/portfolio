@@ -2,11 +2,7 @@ import React, { useRef, useEffect, useState, useCallback } from "react";
 import { motion, AnimatePresence, useMotionValue } from "framer-motion";
 import CloseBtn from "./close-btn";
 
-interface CarouselProps {
-  images: string[];
-}
-
-export const Carousel: React.FC<CarouselProps> = ({ images }) => {
+export const Carousel: React.FC<{ images: string[] }> = ({ images }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [autoScroll, setAutoScroll] = useState(true);
@@ -17,19 +13,19 @@ export const Carousel: React.FC<CarouselProps> = ({ images }) => {
   const [containerWidth, setContainerWidth] = useState(0);
   const [contentWidth, setContentWidth] = useState(0);
 
+  const updateWidths = useCallback(() => {
+    if (containerRef.current) {
+      setContainerWidth(containerRef.current.offsetWidth);
+      setContentWidth(containerRef.current.scrollWidth);
+    }
+  }, []);
+
   useEffect(() => {
-    const updateWidths = () => {
-      if (containerRef.current) {
-        setContainerWidth(containerRef.current.offsetWidth);
-        setContentWidth(containerRef.current.scrollWidth);
-      }
-    };
-
     updateWidths();
-
     window.addEventListener('resize', updateWidths);
+
     return () => window.removeEventListener('resize', updateWidths);
-  }, [images]);
+  }, [images, updateWidths]);
 
   const maxScroll = contentWidth - containerWidth;
 
@@ -37,6 +33,7 @@ export const Carousel: React.FC<CarouselProps> = ({ images }) => {
     if (autoScroll) {
       const currentX = x.get();
       let newX = currentX;
+
       if (scrollDirection === 'left') {
         newX -= 1;
         if (-newX >= maxScroll) {
@@ -50,6 +47,7 @@ export const Carousel: React.FC<CarouselProps> = ({ images }) => {
           setScrollDirection('left');
         }
       }
+
       x.set(newX);
     }
   }, [autoScroll, x, maxScroll, scrollDirection]);
@@ -57,6 +55,7 @@ export const Carousel: React.FC<CarouselProps> = ({ images }) => {
   const useInterval = (callback: () => void, delay: number | null) => {
     useEffect(() => {
       if (delay === null) return;
+
       const id = setInterval(callback, delay);
       return () => clearInterval(id);
     }, [callback, delay]);

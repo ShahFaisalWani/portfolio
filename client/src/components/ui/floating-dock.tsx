@@ -8,11 +8,11 @@ import {
   useTransform,
 } from "framer-motion";
 import { useRef, useState } from "react";
+import ReactGA from 'react-ga4';
 
 export const FloatingDock = ({
   items,
   desktopClassName,
-  mobileClassName,
   isHome,
 }: {
   items: { title: string; icon: React.ReactNode; href: string }[];
@@ -23,62 +23,10 @@ export const FloatingDock = ({
   return (
     <>
       <FloatingDockDesktop items={items} className={desktopClassName} isHome={isHome} />
-      {/* <FloatingDockMobile items={items} className={mobileClassName} isHome={isHome} /> */}
     </>
   );
 };
 
-const FloatingDockMobile = ({ items, className, isHome }: {
-  items: { title: string; icon: React.ReactNode; href: string }[];
-  className?: string;
-  isHome: boolean;
-}) => {
-  const [open, setOpen] = useState(false);
-  return (
-    <div className={cn("relative block md:hidden", className)}>
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            layoutId="nav"
-            className="absolute bottom-full ml-12 inset-y-0 flex gap-2 border-4 border-green"
-          >
-            {items.map((item, idx) => (
-              <motion.div
-                key={item.title}
-                initial={{ opacity: 0, x: 10 }}
-                animate={{
-                  opacity: 1,
-                  x: 0,
-                }}
-                exit={{
-                  opacity: 0,
-                  x: 10,
-                  transition: {
-                    delay: idx * 0.05,
-                  },
-                }}
-                transition={{ delay: (items.length - 1 - idx) * 0.05 }}
-              >
-                <a
-                  key={item.title}
-                  href={item.href}
-                  target="_blank"
-                  className="h-24 w-24 rounded-full bg-gray-50 dark:bg-neutral-900 flex items-center justify-center"
-                >
-                  <div className="h-8 w-8">{item.icon}</div>
-                </a>
-              </motion.div>
-            ))}
-          </motion.div>
-        )}
-      </AnimatePresence>
-      <button
-        onClick={() => setOpen(!open)}
-        className="h-10 w-10 rounded-full bg-gray-50 dark:bg-neutral-800 flex items-center justify-center"
-      />
-    </div>
-  );
-};
 
 const FloatingDockDesktop = ({
   items,
@@ -162,8 +110,16 @@ function IconContainer({
 
   const [hovered, setHovered] = useState(false);
 
+  const handleClick = () => {
+    ReactGA.event({
+      category: 'Floating Social Bar',
+      action: 'Click link',
+      label: title,
+    });
+  };
+
   return (
-    <a href={href} target="_blank">
+    <a href={href} target="_blank" onClick={handleClick}>
       <motion.div
         ref={ref}
         style={{ width, height }}

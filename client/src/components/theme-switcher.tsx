@@ -1,5 +1,6 @@
 import { useTheme, Theme } from '@providers/theme-provider';
 import { useState } from "react";
+import ReactGA from 'react-ga4';
 
 export const ThemeSwitcher = () => {
   const { theme, changeTheme } = useTheme();
@@ -18,6 +19,12 @@ export const ThemeSwitcher = () => {
     setIsChecked(!isChecked);
     addTransitionClassName();
     changeTheme(newTheme);
+
+    ReactGA.event({
+      category: "Theme Switcher",
+      action: "change theme",
+      label: newTheme,
+    });
 
     setTimeout(removeTransitionClassName, parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--trans-dur')) * 1000);
   };

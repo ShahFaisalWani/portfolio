@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { CardBody, CardContainer, CardItem } from "@components/ui/3d-card";
-import { cn } from "@lib/utils";
 import alwani_1 from '@assets/alwani/alwani-1.gif'
 import alwani_2 from '@assets/alwani/alwani-2.png'
 import alwani_3 from '@assets/alwani/alwani-3.png'
@@ -20,6 +19,7 @@ import robox_5 from '@assets/robox/robox-5.png'
 import robox_6 from '@assets/robox/robox-6.png'
 import robox_7 from '@assets/robox/robox-7.png'
 import CloseBtn from "@components/close-btn";
+import ReactGA from 'react-ga4';
 
 const projects = [
   {
@@ -71,27 +71,21 @@ const projects = [
     ],
   },
 ];
-
 export const ProjectSection: React.FC = () => {
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
+  const indexMap = ["alwani", "dbz", "robox"];
 
   const handleExpand = (index: number) => {
-    setExpandedIndex(index === expandedIndex ? null : index);
-  };
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.2,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 50 },
-    show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
+    if (expandedIndex === index) {
+      setExpandedIndex(null);
+    } else {
+      setExpandedIndex(index);
+      ReactGA.event({
+        category: "Project",
+        action: "Click on card",
+        label: indexMap[index],
+      });
+    }
   };
 
   return (
@@ -108,28 +102,22 @@ export const ProjectSection: React.FC = () => {
       </motion.h1>
       <motion.div
         className="relative flex flex-wrap gap-3 sm:gap-10 mt-4 max-sm:justify-center"
-        variants={window.innerWidth < 640 ? undefined : containerVariants}
-        initial={window.innerWidth < 640 ? undefined : "hidden"}
-        whileInView={window.innerWidth < 640 ? undefined : "show"}
-        viewport={window.innerWidth < 640 ? undefined : { once: true, amount: 0.5 }}
-
       >
         {projects.map((project, index) => (
-          <motion.div
-            key={index}
-            variants={itemVariants}
-            initial={window.innerWidth < 640 ? "hidden" : undefined}
-            whileInView={window.innerWidth < 640 ? "show" : undefined}
-            viewport={window.innerWidth < 640 ? { once: true, amount: 0.5 } : undefined}
-          // onClick={(e) => { e.stopPropagation(); handleExpand(index) }}
-          >
-            <ProjectItem
-              key={index}
-              isExpanded={expandedIndex === index}
-              onClick={() => handleExpand(index)}
-              onClose={() => handleExpand(index)}
-              {...project}
-            />
+          <motion.div key={index} className="flex flex-wrap">
+            {expandedIndex === index ? (
+              <ExpandedProjectItem
+                {...project}
+                isExpanded={true}
+                onClick={() => handleExpand(index)}
+              />
+            ) : (
+              <CardItemComponent
+                {...project}
+                isExpanded={false}
+                onClick={() => handleExpand(index)}
+              />
+            )}
           </motion.div>
         ))}
       </motion.div>
@@ -139,176 +127,14 @@ export const ProjectSection: React.FC = () => {
 
 export default ProjectSection;
 
-// interface ProjectItemProps {
-//   title: string;
-//   description: string[];
-//   link?: string;
-//   images: string[];
-//   onClose: () => void;
-//   isExpanded: boolean;
-// }
-
-// const ProjectItem: React.FC<ProjectItemProps> = ({ title, description, link, images, onClose, isExpanded }) => {
-//   const containerRef = useRef<HTMLDivElement>(null);
-//   const contentRef = useRef<HTMLDivElement>(null);
-//   const [dragLimit, setDragLimit] = useState(0);
-
-//   const handleBackgroundClick = (e: React.MouseEvent<HTMLDivElement>) => {
-//     if (e.target === e.currentTarget) {
-//       onClose();
-//     }
-//   };
-
-//   useEffect(() => {
-//     setTimeout(() => {
-//       if (containerRef.current && contentRef.current) {
-//         const containerWidth = containerRef.current.offsetWidth;
-//         const contentWidth = contentRef.current.scrollWidth;
-//         const newDragLimit = containerWidth - contentWidth;
-//         setDragLimit(newDragLimit);
-//       }
-//     }, 100)
-//   }, [isExpanded, images.length]);
-
-//   return (
-//     <AnimatePresence>
-//       <motion.div
-//         layout
-//         className={cn(
-//           "shadow-none bg-transparent rounded-lg cursor-pointer",
-//           isExpanded
-//             ? "fixed inset-0 z-50"
-//             : "w-full sm:w-[36rem] sm:h-[40rem]"
-//         )}
-//         onClick={handleBackgroundClick}
-//       >
-//         {isExpanded && (
-//           <motion.div
-//             initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
-//             animate={{ opacity: 1, backdropFilter: "blur(8px)" }}
-//             exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
-//             transition={{ duration: 0.5, ease: "easeInOut" }}
-//             className="fixed inset-0 -z-10"
-//             onClick={handleBackgroundClick}
-//           />
-//         )}
-
-//         {isExpanded && (
-//           <button
-//             onClick={onClose}
-//             className="absolute top-4 right-4 bg-white text-black p-2 rounded-full shadow-lg z-50 hover:bg-gray-200 focus:outline-none"
-//           >
-//             &times;
-//           </button>
-//         )}
-
-//         <CardContainer className={cn('h-full w-full', isExpanded && 'mt-40 sm:mt-20')}>
-//           <CardBody className={cn('relative flex flex-col gap-4 h-full p-8', isExpanded ? 'w-fit' : 'w-full')}>
-//             <CardItem
-//               translateZ="50"
-//               className="text-2xl font-bold text-foreground"
-//             >
-//               {title}
-//             </CardItem>
-
-//             <CardItem translateZ="100" className={cn(isExpanded ? 'w-[90vw] md:w-[80vh] lg:w-[70vh]' : 'w-full h-[20rem]')}>
-//               <img
-//                 src={images[0]}
-//                 className="h-full w-full object-cover rounded-xl"
-//                 onClick={(e) => isExpanded && e.stopPropagation()}
-//               />
-//             </CardItem>
-
-//             {!isExpanded && (
-//               <CardItem
-//                 as="ul"
-//                 translateZ="60"
-//                 className="text-muted-foreground leading-relaxed text-sm"
-//               >
-//                 <ul className="list-disc ml-6">
-//                   {description.map((d) => (
-//                     <li key={d}>{d}</li>
-//                   ))}
-//                 </ul>
-//               </CardItem>
-//             )}
-
-//             {link && !isExpanded && (
-//               <CardItem
-//                 translateZ={20}
-//                 as="a"
-//                 href={link}
-//                 target="_blank"
-//                 className="text-sm font-medium text-text hover:underline"
-//                 onClick={(e: React.MouseEvent) => e.stopPropagation()}
-//               >
-//                 Learn more →
-//               </CardItem>
-//             )}
-
-//           </CardBody>
-//         </CardContainer>
-
-//         {isExpanded && (
-//           <div
-//             ref={containerRef}
-//             className="flex h-[20rem] md:h-[20vh] lg:h-[30vh] mt-4 w-full py-10"
-//             onClick={(e: React.MouseEvent) => e.stopPropagation()}
-//           >
-//             <motion.div
-//               ref={contentRef}
-//               className="flex gap-4 cursor-grab px-10"
-//               drag="x"
-//               dragConstraints={{ left: dragLimit - 40, right: 0 }}
-//               dragElastic={0.1}
-//               whileTap={{ cursor: "grabbing" }}
-//             >
-//               {images.slice(1, images.length).map((image) => (
-//                 <motion.img
-//                   draggable={false}
-//                   key={image}
-//                   src={image}
-//                   className="h-full w-auto object-cover rounded-xl flex-shrink-0 select-none"
-//                   alt={`Project image ${image}`}
-//                   onClick={(e) => e.stopPropagation()}
-//                 />
-//               ))}
-//             </motion.div>
-//           </div>
-//         )}
-//       </motion.div>
-//     </AnimatePresence>
-//   );
-// };
-interface ProjectItemProps {
-  title: string;
-  description: string[];
-  link?: string;
-  images: string[];
-  onClick: () => void;
-  onClose: () => void;
-  isExpanded: boolean;
-}
-
-const ProjectItem: React.FC<ProjectItemProps> = ({ title, description, link, images, onClick, onClose, isExpanded }) => {
+const ExpandedProjectItem: React.FC<ProjectItemProps> = ({ title, description, images, onClick }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const [dragLimit, setDragLimit] = useState(0);
-  const [currentImage, setCurrentImage] = useState(images[0]); // State to track the main image
+  const [currentImage, setCurrentImage] = useState(images[0]);
 
-  const onMainImgClick = () => {
-    onClick()
-  }
-
-  const handleClose = () => {
-    setCurrentImage(images[0])
-    onClose();
-  }
-
-  const handleBackgroundClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (e.target === e.currentTarget) {
-      handleClose()
-    }
+  const handleImageClick = (image: string) => {
+    setCurrentImage(image);
   };
 
   useEffect(() => {
@@ -320,115 +146,98 @@ const ProjectItem: React.FC<ProjectItemProps> = ({ title, description, link, ima
         setDragLimit(newDragLimit);
       }
     }, 100);
-  }, [isExpanded, images.length]);
-
-  const handleImageClick = (image: string) => {
-    setCurrentImage(image);
-  };
+  }, [images.length]);
 
   return (
-    <AnimatePresence>
+    <motion.div
+      layout
+      className="fixed inset-0 z-50 shadow-none bg-transparent rounded-lg"
+      onClick={onClick}
+    >
       <motion.div
-        layout
-        className={cn(
-          "shadow-none bg-transparent rounded-lg cursor-pointer",
-          isExpanded
-            ? "fixed inset-0 z-50"
-            : "w-full sm:w-[36rem] sm:h-[40rem]"
-        )}
-        onClick={handleBackgroundClick}
-      >
-        {isExpanded && (
-          <motion.div
-            initial={{ opacity: 0, WebkitBackdropFilter: "blur(0px)", backdropFilter: "blur(0px)" }}
-            animate={{ opacity: 1, WebkitBackdropFilter: "blur(15px)", backdropFilter: "blur(15px)" }}
-            exit={{ opacity: 0, WebkitBackdropFilter: "blur(0px)", backdropFilter: "blur(0px)" }}
-            transition={{ duration: 0.5, ease: "easeInOut" }}
-            className="fixed inset-0 -z-10"
-            onClick={handleBackgroundClick}
-          />
-        )}
+        initial={{ opacity: 0, WebkitBackdropFilter: "blur(0px)", backdropFilter: "blur(0px)" }}
+        animate={{ opacity: 1, WebkitBackdropFilter: "blur(15px)", backdropFilter: "blur(15px)" }}
+        transition={{ duration: 0.3, ease: "easeInOut" }}
+        className="fixed inset-0 -z-10"
+      />
 
-        {isExpanded && (
-          <CloseBtn onClick={handleClose} className="absolute top-4 right-4" />
-        )}
+      <CloseBtn onClick={onClick} className="absolute top-4 right-4" />
 
-        <CardContainer className={cn('h-full w-full', isExpanded && 'mt-20')}>
-          <CardBody className={cn('relative flex flex-col gap-4 h-full p-8', isExpanded ? 'w-full' : 'w-full')}>
-            <CardItem
-              translateZ="50"
-              className={cn('text-2xl font-bold text-foreground', isExpanded && 'text-center')}
-            >
-              {title}
-            </CardItem>
+      <CardContainer className="h-full w-full mt-20">
+        <CardBody className="relative flex flex-col gap-4 h-full w-full p-8">
+          <CardItem translateZ="50" className="text-2xl font-bold text-foreground text-center">
+            {title}
+          </CardItem>
+          <CardItem translateZ="100" className="w-fit m-auto flex justify-center items-center h-[30rem]">
+            <div className="h-full w-full flex items-center justify-center">
+              <img src={currentImage} className="max-h-full w-full object-contain rounded-xl" />
+            </div>
+          </CardItem>
+        </CardBody>
+      </CardContainer>
 
-            <CardItem translateZ="100" className={cn(isExpanded ? 'w-fit m-auto flex justify-center items-center h-[30rem]' : 'w-full h-[20rem]')}>
-              <img
-                src={currentImage}
-                className="h-full w-full object-contain rounded-xl"
-                onClick={onMainImgClick}
-              />
-            </CardItem>
-
-            {!isExpanded && (
-              <CardItem
-                as="ul"
-                translateZ="60"
-                className="text-muted-foreground leading-relaxed text-sm"
-              >
-                <ul className="list-disc ml-6">
-                  {description.map((d) => (
-                    <li key={d}>{d}</li>
-                  ))}
-                </ul>
-              </CardItem>
-            )}
-
-            {link && !isExpanded && (
-              <CardItem
-                translateZ={20}
-                as="a"
-                href={link}
-                target="_blank"
-                className="text-sm font-medium text-text hover:underline"
-                onClick={(e: React.MouseEvent) => e.stopPropagation()}
-              >
-                Learn more →
-              </CardItem>
-            )}
-
-          </CardBody>
-        </CardContainer>
-
-        {isExpanded && (
-          <div
-            ref={containerRef}
-            className="flex h-[20rem] md:h-[20vh] lg:h-[30vh] mt-4 w-full py-10"
-          >
-            <motion.div
-              ref={contentRef}
-              className="flex gap-4 cursor-grab px-10"
-              drag="x"
-              dragConstraints={{ left: dragLimit - 40, right: 0 }}
-              dragElastic={0.1}
-              whileTap={{ cursor: "grabbing" }}
-            >
-              {images.slice(1, images.length).map((image) => (
-                <motion.img
-                  draggable={false}
-                  key={image}
-                  src={image}
-                  className="h-full w-auto object-cover rounded-xl flex-shrink-0 select-none"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleImageClick(image);
-                  }}
-                />
-              ))}
-            </motion.div>
-          </div>
-        )}
-      </motion.div>
-    </AnimatePresence>
+      <div ref={containerRef} className="flex h-[20rem] md:h-[20vh] lg:h-[30vh] w-full pb-10 sm:mt-8">
+        <motion.div
+          ref={contentRef}
+          className="flex gap-4 cursor-grab px-10"
+          drag="x"
+          dragConstraints={{ left: dragLimit - 40, right: 0 }}
+          dragElastic={0.1}
+          whileTap={{ cursor: "grabbing" }}
+        >
+          {images.slice(1).map((image) => (
+            <motion.img
+              key={image}
+              draggable={false}
+              src={image}
+              className="h-full w-auto object-cover rounded-xl flex-shrink-0 select-none"
+              onClick={(e) => {
+                e.stopPropagation()
+                handleImageClick(image)
+              }}
+            />
+          ))}
+        </motion.div>
+      </div>
+    </motion.div>
   );
 };
+
+interface ProjectItemProps {
+  title: string;
+  description: string[];
+  link?: string;
+  images: string[];
+  onClick: () => void;
+  isExpanded: boolean;
+}
+
+const CardItemComponent: React.FC<ProjectItemProps> = ({ title, description, link, images, onClick }) => (
+  <CardContainer className="h-full w-full sm:w-[36rem] sm:h-[40rem]">
+    <CardBody className="relative flex flex-col gap-4 h-full w-full p-8">
+      <CardItem translateZ="50" className="text-2xl font-bold text-text">
+        {title}
+      </CardItem>
+      <CardItem translateZ="100" className="w-full h-[20rem]">
+        <img
+          src={images[0]}
+          className="h-full w-full object-contain rounded-xl"
+          onClick={onClick}
+        />
+      </CardItem>
+      <CardItem as="ul" translateZ="60" className="text-muted-foreground leading-relaxed text-sm">
+        <ul className="list-disc ml-6">
+          {description.map((d) => (
+            <li key={d}>{d}</li>
+          ))}
+        </ul>
+      </CardItem>
+      {link && (
+        <CardItem translateZ="20" as="a" href={link} target="_blank" className="text-sm font-medium text-text hover:underline">
+          Learn more →
+        </CardItem>
+      )}
+    </CardBody>
+  </CardContainer>
+)
+

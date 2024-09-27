@@ -2,9 +2,10 @@ import React, { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ThemeSwitcher } from "@components/theme-switcher";
 import Logo from '/logo.svg';
-import { Modal } from "./modal";
-import ContactForm from "./contact-form";
+import { Modal } from "@components/modal";
+import ContactForm from "@components/contact-form";
 import { cn } from "@lib/utils";
+import ReactGA from 'react-ga4';
 
 const Navbar: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -13,16 +14,34 @@ const Navbar: React.FC = () => {
     event.preventDefault();
     const section = document.getElementById(sectionId);
     if (section && sectionId !== "section_home") {
-      console.log('smooth', sectionId)
       section.scrollIntoView({ behavior: "smooth" });
+
+      ReactGA.event({
+        category: "Navigation",
+        action: "Navigate to section",
+        label: sectionId,
+      });
     }
   };
 
-  const openModal = () => setIsModalOpen(true);
+  const openModal = () => {
+    setIsModalOpen(true);
+    ReactGA.event({
+      category: "Navigation",
+      action: "Open Contact Modal",
+      label: "Contact",
+    });
+  };
+
   const closeModal = () => setIsModalOpen(false);
 
   return (
-    <motion.div className="h-[8rem] w-full flex justify-between items-center relative z-10 px-10 pt-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 3.3 }}>
+    <motion.div
+      className="h-[8rem] w-full flex justify-between items-center relative z-10 px-10 pt-4"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ delay: 3.3 }}
+    >
       <div className="flex items-center gap-20">
         <a className="h-[6rem] w-[6rem]" href="/">
           <img src={Logo} className="text-2xl" alt="Vite logo" />

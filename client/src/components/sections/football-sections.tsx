@@ -37,7 +37,7 @@ export const FootballSection: React.FC = () => {
         transition={{ duration: 0.5, ease: "easeOut" }}
         data-cursor="project"
       >
-        Football
+        When I'm Off Work
       </motion.h1>
       <div className="flex justify-center mt-8">
         <ImgMagnifier images={displayedImages} />
