@@ -127,26 +127,51 @@ export const ProjectSection: React.FC = () => {
 
 export default ProjectSection;
 
-const ExpandedProjectItem: React.FC<ProjectItemProps> = ({ title, description, images, onClick }) => {
+interface ProjectItemProps {
+  title: string;
+  description: string[];
+  link?: string;
+  images: string[];
+  onClick: () => void;
+  isExpanded: boolean;
+}
+
+const ExpandedProjectItem: React.FC<ProjectItemProps> = ({ title, images, onClick }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
-  const [dragLimit, setDragLimit] = useState(0);
   const [currentImage, setCurrentImage] = useState(images[0]);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [scrollLeft, setScrollLeft] = useState(0);
 
   const handleImageClick = (image: string) => {
     setCurrentImage(image);
   };
 
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setIsDragging(true);
+    setStartX(e.pageX - contentRef.current!.offsetLeft);
+    setScrollLeft(contentRef.current!.scrollLeft);
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging) return;
+    e.preventDefault();
+    const x = e.pageX - contentRef.current!.offsetLeft;
+    const walk = (x - startX) * 2;
+    contentRef.current!.scrollLeft = scrollLeft - walk;
+  };
+
   useEffect(() => {
-    setTimeout(() => {
-      if (containerRef.current && contentRef.current) {
-        const containerWidth = containerRef.current.offsetWidth;
-        const contentWidth = contentRef.current.scrollWidth;
-        const newDragLimit = containerWidth - contentWidth;
-        setDragLimit(newDragLimit);
-      }
-    }, 100);
-  }, [images.length]);
+    document.addEventListener('mouseup', handleMouseUp);
+    return () => {
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, []);
 
   return (
     <motion.div
@@ -170,47 +195,37 @@ const ExpandedProjectItem: React.FC<ProjectItemProps> = ({ title, description, i
           </CardItem>
           <CardItem translateZ="100" className="w-fit m-auto flex justify-center items-center h-[30rem]">
             <div className="h-full w-full flex items-center justify-center">
-              <img src={currentImage} className="max-h-full w-full object-contain rounded-xl" />
+              <img src={currentImage} className="max-h-full w-full object-contain rounded-xl" alt={title} />
             </div>
           </CardItem>
         </CardBody>
       </CardContainer>
 
-      <div ref={containerRef} className="flex h-[20rem] md:h-[20vh] lg:h-[30vh] w-full pb-10 sm:mt-8">
+      <div ref={containerRef} className="flex h-[20rem] md:h-[20vh] lg:h-[30vh] w-full pb-10 sm:mt-8 overflow-hidden" onClick={(e) => e.stopPropagation()}>
         <motion.div
           ref={contentRef}
-          className="flex gap-4 cursor-grab px-10"
-          drag="x"
-          dragConstraints={{ left: dragLimit - 40, right: 0 }}
-          dragElastic={0.1}
-          whileTap={{ cursor: "grabbing" }}
+          className="flex gap-4 cursor-grab px-10 hide-scrollbar"
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          style={{ overflow: 'auto', whiteSpace: 'nowrap' }}
         >
-          {images.slice(1).map((image) => (
+          {images.slice(1).map((image, index) => (
             <motion.img
-              key={image}
+              key={index}
               draggable={false}
               src={image}
               className="h-full w-auto object-cover rounded-xl flex-shrink-0 select-none"
               onClick={(e) => {
-                e.stopPropagation()
-                handleImageClick(image)
+                e.stopPropagation();
+                handleImageClick(image);
               }}
             />
           ))}
         </motion.div>
       </div>
-    </motion.div>
+    </motion.div >
   );
 };
-
-interface ProjectItemProps {
-  title: string;
-  description: string[];
-  link?: string;
-  images: string[];
-  onClick: () => void;
-  isExpanded: boolean;
-}
 
 const CardItemComponent: React.FC<ProjectItemProps> = ({ title, description, link, images, onClick }) => (
   <CardContainer className="h-full w-full sm:w-[36rem] sm:h-[40rem]">
