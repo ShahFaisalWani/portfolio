@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 
 interface ImgMagnifierProps {
@@ -16,7 +16,7 @@ const ImgMagnifier: React.FC<ImgMagnifierProps> = ({ images }) => {
   };
 
   return (
-    <div className="w-full h-[50vmin] flex items-center justify-center gap-[1vmin]">
+    <div className="w-full h-[60vmin] lg:h-[45rem] flex items-center justify-center gap-[1vmin]">
       {images.map((image, index) => (
         <motion.img
           key={index}
@@ -27,7 +27,7 @@ const ImgMagnifier: React.FC<ImgMagnifierProps> = ({ images }) => {
             !isMobile
               ? {
                 filter: 'grayscale(0) brightness(1.15)',
-                flex: 7,
+                flex: 5,
                 transition: {
                   duration: 0.6,
                   ease: 'easeInOut',

@@ -7,7 +7,6 @@ interface TextRevealProps {
 }
 
 const TextReveal: React.FC<TextRevealProps> = ({ text, className }) => {
-  // Animation variants for the container
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: (i = 1) => ({
@@ -16,7 +15,6 @@ const TextReveal: React.FC<TextRevealProps> = ({ text, className }) => {
     }),
   };
 
-  // Animation variants for each letter
   const letterVariants = {
     hidden: {
       opacity: 0,

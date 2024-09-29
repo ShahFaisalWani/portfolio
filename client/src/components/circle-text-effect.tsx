@@ -27,7 +27,6 @@ const CircleTextEffect: React.FC<CircleTextEffectProps> = ({ text }) => {
     };
   }, []);
 
-  // Styles using emotion's `css`
   const containerStyle = css`
     position: relative;
     padding: 2rem;

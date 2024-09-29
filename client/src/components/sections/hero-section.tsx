@@ -20,7 +20,7 @@ export const HeroSection: React.FC = () => {
     document.body.style.overflow = 'hidden';
   }
   const onAnimationComplete = () => {
-    document.documentElement.setAttribute("allow-move", "true"); // Set attribute to allow movement
+    document.documentElement.setAttribute("allow-move", "true");
     document.body.style.overflow = '';
     setLetterMovements(text1.concat(text2).split("").map(() => getRandomMovement()));
   }
@@ -33,8 +33,11 @@ export const HeroSection: React.FC = () => {
       <motion.div
         className="fixed w-screen h-screen left-0 top-0 bg-root-contrast z-[11]"
         initial={{ y: 0, opacity: 1 }}
-        animate={{ y: -window.innerHeight - 100 }}
-        transition={{ delay: 2.8, duration: 0.7, ease: "easeOut" }}
+        animate={{ y: -window.innerHeight - 100, opacity: 0 }}
+        transition={{
+          y: { delay: 2.8, duration: 0.7, ease: "easeOut" },
+          opacity: { delay: 3.5 },
+        }}
         onAnimationStart={onAnimationStart}
         onAnimationComplete={onAnimationComplete}
       />

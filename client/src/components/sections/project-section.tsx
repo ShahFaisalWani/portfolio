@@ -236,7 +236,7 @@ const CardItemComponent: React.FC<ProjectItemProps> = ({ title, description, lin
       <CardItem translateZ="100" className="w-full h-[20rem]">
         <img
           src={images[0]}
-          className="h-full w-full object-contain rounded-xl"
+          className="h-full w-full object-cover rounded-xl"
           onClick={onClick}
         />
       </CardItem>
