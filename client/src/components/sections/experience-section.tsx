@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useEffect, useState, useRef, forwardRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@lib/utils";
 import { useTheme, Theme } from "@providers/theme-provider";
@@ -66,6 +66,18 @@ export const ExperienceSection: React.FC = () => {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
 
+  useEffect(() => {
+    const preloadImages = () => {
+      experiences.forEach((exp) => {
+        if (exp.logo) {
+          const img = new Image();
+          img.src = exp.logo;
+        }
+      });
+    };
+    preloadImages();
+  }, []);
+
   return (
     <div className="flex flex-col p-4 sm:p-16 pt-4 relative">
       <motion.h1
@@ -125,7 +137,7 @@ interface ExperienceItemProps {
   onHoverEnd: () => void;
 }
 
-const ExperienceItem = React.forwardRef<HTMLDivElement, ExperienceItemProps>(
+const ExperienceItem = forwardRef<HTMLDivElement, ExperienceItemProps>(
   (
     { role, company, duration, description, href, onHoverStart, onHoverEnd },
     ref
@@ -185,7 +197,7 @@ const LogoDisplay: React.FC<LogoDisplayProps> = ({
   const { theme } = useTheme();
   const [position, setPosition] = useState({ top: 0, height: 0 });
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (itemRef) {
       const updatePosition = () => {
         const rect = itemRef.getBoundingClientRect();
