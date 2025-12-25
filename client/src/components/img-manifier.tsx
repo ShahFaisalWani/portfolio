@@ -22,6 +22,7 @@ const ImgMagnifier: React.FC<ImgMagnifierProps> = ({ images }) => {
           key={index}
           src={image}
           className="h-full object-cover overflow-hidden"
+          alt={`Football activity photo ${index + 1}`}
           initial={{ flex: 1, filter: 'grayscale(0.75) brightness(0.75)' }}
           whileHover={
             !isMobile

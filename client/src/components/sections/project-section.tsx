@@ -195,7 +195,7 @@ const ExpandedProjectItem: React.FC<ProjectItemProps> = ({ title, images, onClic
           </CardItem>
           <CardItem translateZ="100" className="w-fit m-auto flex justify-center items-center h-[30rem]">
             <div className="h-full w-full flex items-center justify-center">
-              <img src={currentImage} className="max-h-full w-full object-contain rounded-xl" alt={title} />
+              <img src={currentImage} className="max-h-full w-full object-contain rounded-xl" alt={`${title} - Project Screenshot`} />
             </div>
           </CardItem>
         </CardBody>
@@ -215,6 +215,7 @@ const ExpandedProjectItem: React.FC<ProjectItemProps> = ({ title, images, onClic
               draggable={false}
               src={image}
               className="h-full w-auto object-cover rounded-xl flex-shrink-0 select-none"
+              alt={`${title} - Screenshot ${index + 2}`}
               onClick={(e) => {
                 e.stopPropagation();
                 handleImageClick(image);
@@ -237,6 +238,7 @@ const CardItemComponent: React.FC<ProjectItemProps> = ({ title, description, lin
         <img
           src={images[0]}
           className="h-full w-full object-cover rounded-xl"
+          alt={`${title} - Project Preview`}
           onClick={onClick}
         />
       </CardItem>

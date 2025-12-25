@@ -36,17 +36,19 @@ const Navbar: React.FC = () => {
   const closeModal = () => setIsModalOpen(false);
 
   return (
-    <motion.div
+    <motion.nav
       className="h-[8rem] w-full flex justify-between items-center relative z-10 px-10 pt-4"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ delay: 3.3 }}
+      role="navigation"
+      aria-label="Main navigation"
     >
       <div className="flex items-center gap-20">
-        <a className="h-[6rem] w-[6rem]" href="/">
-          <img src={Logo} className="text-2xl" alt="Vite logo" />
+        <a className="h-[6rem] w-[6rem]" href="/" aria-label="Home - FaisalWani.Dev">
+          <img src={Logo} className="text-2xl" alt="FaisalWani.Dev Logo" />
         </a>
-        <div className="flex gap-[5rem] text-3xl w-1/2 text-primary max-sm:hidden">
+        <div className="flex gap-[5rem] text-3xl w-1/2 text-primary max-sm:hidden" role="menubar">
           <HoverLink href="#section_about" onClick={(event) => handleScroll(event, "section_about")} className="max-sm:hidden">
             About
           </HoverLink>
@@ -75,7 +77,7 @@ const Navbar: React.FC = () => {
           </Modal>
         )}
       </AnimatePresence>
-    </motion.div>
+    </motion.nav>
   );
 };
 

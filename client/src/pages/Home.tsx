@@ -6,44 +6,75 @@ import { CertSection } from "@components/sections/cert-section";
 import TrafficMonitor from "@components/traffic-monitor";
 import { FootballSection } from "@components/sections/football-sections";
 import { SocialBar } from "@components/social-bar";
+import { SEO } from "@components/seo";
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import ReactGA from 'react-ga4';
+import ReactGA from "react-ga4";
 
 const Home = () => {
-  const location = useLocation()
+  const location = useLocation();
   useEffect(() => {
-    ReactGA.send({ hitType: "pageview", page: location.pathname + location.search });
+    ReactGA.send({
+      hitType: "pageview",
+      page: location.pathname + location.search,
+    });
   }, [location]);
 
   return (
-    <div className="absolute top-0 h-screen w-screen z-0">
-      <TrafficMonitor />
-      <section className="h-full w-full" id="section_home">
-        <HeroSection />
-      </section>
+    <>
+      <SEO />
+      <div className="absolute top-0 h-screen w-screen z-0">
+        <TrafficMonitor />
+        <section
+          className="h-full w-full"
+          id="section_home"
+          aria-label="Hero section"
+        >
+          <HeroSection />
+        </section>
 
-      <section className="w-full" id="section_about">
-        <AboutSection />
-      </section>
+        <section
+          className="w-full"
+          id="section_about"
+          aria-label="About section"
+        >
+          <AboutSection />
+        </section>
 
-      <section className="h-fit w-full" id="section_work">
-        <ExperienceSection />
-      </section>
+        <section
+          className="h-fit w-full"
+          id="section_work"
+          aria-label="Work experience section"
+        >
+          <ExperienceSection />
+        </section>
 
-      <section className="h-fit w-full" id="section_projects">
-        <ProjectSection />
-        <CertSection />
-        <FootballSection />
-      </section>
+        <section
+          className="h-fit w-full"
+          id="section_projects"
+          aria-label="Projects and achievements section"
+        >
+          <ProjectSection />
+          <CertSection />
+          <FootballSection />
+        </section>
 
-      <footer className="flex flex-col justify-between items-center gap-10 py-20 bg-bg mt-20">
-        <h1 className="text-center text-5xl sm:text-7xl">Thanks for visiting my portfolio</h1>
-        <hr className="hr-text w-[90vw] sm:w-[70vw] font-ramillas-light text-3xl" data-content="Shah Faisal Wani"></hr>
-        <SocialBar isHome={true} />
-      </footer>
-
-    </div>
+        <footer
+          className="flex flex-col justify-between items-center gap-10 py-20 bg-bg mt-20"
+          role="contentinfo"
+        >
+          <h1 className="text-center text-5xl sm:text-7xl">
+            Thanks for visiting my portfolio
+          </h1>
+          <hr
+            className="hr-text w-[90vw] sm:w-[70vw] font-ramillas-light text-3xl"
+            data-content="Shah Faisal Wani"
+            aria-hidden="true"
+          ></hr>
+          <SocialBar isHome={true} />
+        </footer>
+      </div>
+    </>
   );
 };
 

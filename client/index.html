@@ -2,39 +2,171 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=5.0"
+    />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
     <!-- Primary Meta Tags -->
-    <title>FaisalWani.Dev | Software Engineer Portfolio</title>
-    <meta name="title" content="Shah Faisal Wani | Software Engineer Portfolio" />
-    <meta name="description" content="I'm Shah Faisal Wani, a Software Engineer specializing in building modern, scalable web applications. Check out my projects and contact me for collaboration!" />
+    <title>
+      Shah Faisal Wani | Software Engineer & Full-Stack Developer Portfolio
+    </title>
+    <meta
+      name="title"
+      content="Shah Faisal Wani | Software Engineer & Full-Stack Developer Portfolio"
+    />
+    <meta
+      name="description"
+      content="Software Engineer specializing in React, Node.js, AI integration, and blockchain development. Building scalable web applications with modern technologies. Explore my projects, experience, and get in touch for collaboration opportunities."
+    />
+    <meta
+      name="keywords"
+      content="Software Engineer, Shah Faisal Wani, React Developer, Full-Stack Developer, Web Development, Portfolio, JavaScript, TypeScript, Node.js, SolidJS, Golang, MongoDB, AI Developer, Blockchain Developer, NFT Developer, TailwindCSS, Frontend Developer, Backend Developer"
+    />
+    <meta name="author" content="Shah Faisal Wani" />
+    <meta
+      name="robots"
+      content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+    />
+    <meta name="googlebot" content="index, follow" />
+    <meta name="language" content="English" />
+    <meta name="revisit-after" content="7 days" />
+    <meta name="rating" content="general" />
+    <meta name="distribution" content="global" />
+    <meta name="theme-color" content="#000000" />
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://www.faisalwani.dev/" />
-    <meta property="og:title" content="Shah Faisal Wani | Software Engineer Portfolio" />
-    <meta property="og:description" content="I'm Shah Faisal Wani, a Software Engineer specializing in building modern, scalable web applications. Check out my projects and contact me for collaboration!" />
-    <meta property="og:image" content="https://www.faisalwani.dev/og-image.jpg" />
+    <meta
+      property="og:title"
+      content="Shah Faisal Wani | Software Engineer & Full-Stack Developer Portfolio"
+    />
+    <meta
+      property="og:description"
+      content="Software Engineer specializing in React, Node.js, AI integration, and blockchain development. Building scalable web applications with modern technologies."
+    />
+    <meta property="og:image" content="https://www.faisalwani.dev/logo.jpg" />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="1200" />
+    <meta
+      property="og:image:alt"
+      content="Shah Faisal Wani - Software Engineer Portfolio"
+    />
+    <meta property="og:site_name" content="FaisalWani.Dev" />
+    <meta property="og:locale" content="en_US" />
 
     <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image" />
-    <meta property="twitter:url" content="https://www.faisalwani.dev/" />
-    <meta property="twitter:title" content="Shah Faisal Wani | Software Engineer Portfolio" />
-    <meta property="twitter:description" content="I'm Shah Faisal Wani, a Software Engineer specializing in building modern, scalable web applications. Check out my projects and contact me for collaboration!" />
-    <meta property="twitter:image" content="https://www.faisalwani.dev/twitter-image.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content="https://www.faisalwani.dev/" />
+    <meta
+      name="twitter:title"
+      content="Shah Faisal Wani | Software Engineer & Full-Stack Developer Portfolio"
+    />
+    <meta
+      name="twitter:description"
+      content="Software Engineer specializing in React, Node.js, AI integration, and blockchain development. Building scalable web applications with modern technologies."
+    />
+    <meta name="twitter:image" content="https://www.faisalwani.dev/logo.jpg" />
+    <meta
+      name="twitter:image:alt"
+      content="Shah Faisal Wani - Software Engineer Portfolio"
+    />
 
-    <!-- Robots Meta Tag -->
-    <meta name="robots" content="index, follow" />
-
-    <!-- Favicon -->
+    <!-- Favicon and App Icons - Google Search uses these for search result icons -->
+    <link rel="icon" href="/logo.jpg" type="image/jpeg" />
+    <link rel="shortcut icon" href="/logo.jpg" type="image/jpeg" />
+    <link rel="apple-touch-icon" href="/logo.jpg" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/logo.jpg" />
+    <link rel="icon" type="image/jpeg" sizes="32x32" href="/logo.jpg" />
+    <link rel="icon" type="image/jpeg" sizes="16x16" href="/logo.jpg" />
+    <!-- Fallback to SVG for modern browsers -->
     <link rel="icon" href="/logo.svg" type="image/svg+xml" />
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="msapplication-TileColor" content="#000000" />
+    <meta name="msapplication-TileImage" content="/logo.jpg" />
 
-    <!-- Additional SEO -->
-    <meta name="keywords" content="Software Engineer, Shah Faisal Wani, React Developer, Web Development, Portfolio, JavaScript, Node.js, SolidJS, Golang, MongoDB, AI Developer, TailwindCSS" />
-    <meta name="author" content="Shah Faisal Wani" />
-    
     <!-- Canonical Link -->
     <link rel="canonical" href="https://www.faisalwani.dev/" />
+
+    <!-- Preconnect to External Domains -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="dns-prefetch" href="https://www.google-analytics.com" />
+    <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+
+    <!-- Structured Data (JSON-LD) -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Person",
+        "name": "Shah Faisal Wani",
+        "alternateName": "Faisal Wani",
+        "url": "https://www.faisalwani.dev",
+        "image": "https://www.faisalwani.dev/logo.jpg",
+        "jobTitle": "Software Engineer",
+        "worksFor": {
+          "@type": "Organization",
+          "name": "Freelance"
+        },
+        "description": "Software Engineer specializing in React, Node.js, AI integration, and blockchain development. Building scalable web applications with modern technologies.",
+        "sameAs": [
+          "https://github.com/faisalwani",
+          "https://linkedin.com/in/faisalwani",
+          "https://twitter.com/faisalwani"
+        ],
+        "knowsAbout": [
+          "React",
+          "JavaScript",
+          "TypeScript",
+          "Node.js",
+          "Web Development",
+          "AI Development",
+          "Blockchain Development",
+          "Full-Stack Development",
+          "MongoDB",
+          "Golang",
+          "SolidJS"
+        ],
+        "alumniOf": {
+          "@type": "EducationalOrganization",
+          "name": "University"
+        }
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "FaisalWani.Dev",
+        "url": "https://www.faisalwani.dev",
+        "description": "Software Engineer Portfolio - Shah Faisal Wani",
+        "author": {
+          "@type": "Person",
+          "name": "Shah Faisal Wani"
+        },
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": "https://www.faisalwani.dev/?search={search_term_string}",
+          "query-input": "required name=search_term_string"
+        }
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Portfolio",
+        "name": "Shah Faisal Wani Portfolio",
+        "url": "https://www.faisalwani.dev",
+        "author": {
+          "@type": "Person",
+          "name": "Shah Faisal Wani"
+        },
+        "description": "Portfolio showcasing software engineering projects, experience, and skills in web development, AI integration, and blockchain technologies."
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>

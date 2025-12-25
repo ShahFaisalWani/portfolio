@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://www.faisalwani.dev/sitemap.xml
+
+# Disallow admin pages
+Disallow: /admin
+
+# Crawl-delay
+Crawl-delay: 1
+
