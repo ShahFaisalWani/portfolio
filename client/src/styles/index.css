@@ -7,7 +7,7 @@
   display type, white pill CTAs, one signal accent) with a light inverse.
   Radius rule: interactive controls and chips are full pills, every surface
   (media, cards, inputs, dialogs) is 16px.
-  Z-index scale: content 0-2, hover previews 30, nav 40, grain 60. Dialogs use the native top layer.
+  Z-index scale: content 0-2, hover previews 30, nav 40, case study layer 50, grain 60. Dialogs use the native top layer.
 */
 
 :root,
@@ -59,6 +59,8 @@
   --color-logo-ground: #060606;
   --color-on-photo: #f1f1ee;
   --color-paper: #f4f4f1;
+  /* scrims that keep on-photo text readable over media */
+  --color-scrim: #080809;
   --radius-media: 16px;
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in-out-quart: cubic-bezier(0.76, 0, 0.24, 1);
@@ -144,6 +146,49 @@
     line-height: 1.3;
     letter-spacing: 0.02em;
     font-variant-numeric: tabular-nums;
+  }
+
+  /* Case study layer. The titles share the name's width axis: they stretch out of their mask. */
+  .realm-title {
+    font-size: clamp(2.9rem, 7.4vw, 8.75rem);
+    font-weight: 640;
+    font-stretch: 112%;
+    letter-spacing: -0.045em;
+    line-height: 0.92;
+    text-wrap: balance;
+  }
+  .realm-next-title {
+    font-size: clamp(2.6rem, 7vw, 8rem);
+    font-weight: 640;
+    font-stretch: 108%;
+    letter-spacing: -0.045em;
+    line-height: 0.92;
+    text-wrap: balance;
+    transition: font-stretch 0.9s var(--ease-out-expo);
+  }
+  .realm-next:hover .realm-next-title,
+  .realm-next:focus-visible .realm-next-title {
+    font-stretch: 125%;
+  }
+  .realm-statement {
+    font-size: clamp(1.75rem, 3.6vw, 3.4rem);
+    font-weight: 560;
+    font-stretch: 106%;
+    letter-spacing: -0.03em;
+    line-height: 1.08;
+    text-wrap: pretty;
+  }
+  .realm-detail {
+    font-size: clamp(1.2rem, 1.9vw, 1.7rem);
+    font-weight: 520;
+    letter-spacing: -0.02em;
+    line-height: 1.3;
+  }
+  /* SplitText masks clip at the line box; give descenders room */
+  .split-word-mask,
+  .split-line-mask {
+    padding-bottom: 0.14em;
+    margin-bottom: -0.14em;
   }
 
   /* Pill buttons */
@@ -276,7 +321,216 @@ dialog.sheet .sheet-panel {
   display: none;
 }
 
+/*
+  View transitions (lib/view-transition.ts). html[data-vt] names the move:
+  open: the page recedes while the card cover grows into the case study hero.
+  close: the hero shrinks back into its card while the page comes forward.
+  swap: the case study lifts away as the next-project cover becomes the next hero.
+  *-plain: the same page moves without a shared element (it was off screen).
+*/
+::view-transition-group(*) {
+  animation-duration: 0.9s;
+  animation-timing-function: var(--ease-in-out-quart);
+}
+::view-transition-old(root),
+::view-transition-new(root) {
+  mix-blend-mode: normal;
+}
+::view-transition-old(project-cover),
+::view-transition-new(project-cover) {
+  height: 100%;
+  object-fit: cover;
+  mix-blend-mode: normal;
+}
+/* No cross-fade on the cover (two crops would ghost): the sharper snapshot, the hero, stays opaque. */
+::view-transition-image-pair(project-cover) {
+  overflow: hidden;
+  animation: vt-round-out 0.9s var(--ease-in-out-quart) both;
+}
+::view-transition-new(project-cover) {
+  animation: none;
+}
+::view-transition-old(project-cover) {
+  animation: none;
+  opacity: 0;
+}
+html[data-vt="close"]::view-transition-image-pair(project-cover) {
+  animation-name: vt-round-in;
+}
+html[data-vt="close"]::view-transition-old(project-cover) {
+  opacity: 1;
+  animation: vt-fade-out 0.3s linear 0.6s both;
+}
+html[data-vt="open"]::view-transition-old(root) {
+  animation: vt-recede 0.85s var(--ease-in-out-quart) both;
+}
+html[data-vt="open"]::view-transition-new(root),
+html[data-vt="swap"]::view-transition-new(root),
+html[data-vt="swap-plain"]::view-transition-new(root) {
+  animation: vt-fade-in 0.6s var(--ease-out-expo) 0.55s both;
+}
+html[data-vt="close"]::view-transition-old(root) {
+  animation: vt-fade-out 0.4s var(--ease-out-expo) both;
+}
+html[data-vt="close-plain"]::view-transition-old(root) {
+  animation: vt-sink 0.7s var(--ease-in-out-quart) both;
+}
+html[data-vt="close"]::view-transition-new(root),
+html[data-vt="close-plain"]::view-transition-new(root) {
+  animation: vt-emerge 1s var(--ease-out-expo) 0.2s both;
+}
+html[data-vt="swap"]::view-transition-old(root),
+html[data-vt="swap-plain"]::view-transition-old(root) {
+  animation: vt-lift 0.8s var(--ease-in-out-quart) both;
+}
+
+/* certificate viewer */
+html[data-vt^="cert"]::view-transition-group(*) {
+  animation-duration: 0.7s;
+}
+::view-transition-old(cert-focus),
+::view-transition-new(cert-focus) {
+  height: 100%;
+  object-fit: contain;
+}
+html[data-vt="cert-next"]::view-transition-old(cert-focus) {
+  animation: vt-out-left 0.45s var(--ease-in-out-quart) both;
+}
+html[data-vt="cert-next"]::view-transition-new(cert-focus) {
+  animation: vt-in-right 0.7s var(--ease-out-expo) 0.12s both;
+}
+html[data-vt="cert-prev"]::view-transition-old(cert-focus) {
+  animation: vt-out-right 0.45s var(--ease-in-out-quart) both;
+}
+html[data-vt="cert-prev"]::view-transition-new(cert-focus) {
+  animation: vt-in-left 0.7s var(--ease-out-expo) 0.12s both;
+}
+
+html[data-vt="cert-next"]::view-transition-old(cert-caption),
+html[data-vt="cert-prev"]::view-transition-old(cert-caption) {
+  animation: vt-fade-out 0.2s ease both;
+}
+html[data-vt="cert-next"]::view-transition-new(cert-caption),
+html[data-vt="cert-prev"]::view-transition-new(cert-caption) {
+  animation: vt-caption-in 0.6s var(--ease-out-expo) 0.15s both;
+}
+
+/*
+  Theme switch (lib/theme.tsx): the new theme spreads out of the toggle as a circle while the old page
+  holds still under it. --vt-x/--vt-y is the toggle's center, --vt-r0 its radius (so the button flips
+  first) and --vt-r the distance to the farthest corner. clip-path runs on the snapshot, not on layout.
+*/
+html[data-vt="theme"]::view-transition-group(*) {
+  animation-duration: 0.85s;
+}
+html[data-vt="theme"]::view-transition-old(root) {
+  animation: none;
+}
+html[data-vt="theme"]::view-transition-new(root) {
+  animation: vt-theme-reveal 0.85s cubic-bezier(0.55, 0, 0.15, 1) both;
+}
+@keyframes vt-theme-reveal {
+  from {
+    clip-path: circle(var(--vt-r0) at var(--vt-x) var(--vt-y));
+  }
+  to {
+    clip-path: circle(var(--vt-r) at var(--vt-x) var(--vt-y));
+  }
+}
+/* everything flips in one frame: no leftover color fades inside the reveal (the toggle glyphs keep theirs) */
+html[data-theme-switch] *:not(.theme-glyph),
+html[data-theme-switch] *::before,
+html[data-theme-switch] *::after {
+  transition: none !important;
+}
+
+@keyframes vt-caption-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+@keyframes vt-round-out {
+  from {
+    border-radius: 16px;
+  }
+  to {
+    border-radius: 0;
+  }
+}
+@keyframes vt-round-in {
+  from {
+    border-radius: 0;
+  }
+  to {
+    border-radius: 16px;
+  }
+}
+@keyframes vt-recede {
+  to {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+}
+@keyframes vt-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes vt-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+@keyframes vt-sink {
+  to {
+    opacity: 0;
+    transform: translateY(12%);
+  }
+}
+@keyframes vt-emerge {
+  from {
+    opacity: 0;
+    transform: scale(1.04);
+  }
+}
+@keyframes vt-lift {
+  to {
+    opacity: 0;
+    transform: translateY(-10%);
+  }
+}
+@keyframes vt-out-left {
+  to {
+    opacity: 0;
+    transform: translateX(-14%) rotate(-3deg);
+  }
+}
+@keyframes vt-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(14%) rotate(3deg);
+  }
+}
+@keyframes vt-out-right {
+  to {
+    opacity: 0;
+    transform: translateX(14%) rotate(3deg);
+  }
+}
+@keyframes vt-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-14%) rotate(-3deg);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
   *,
   *::before,
   *::after {
@@ -295,6 +549,25 @@ dialog.sheet .sheet-panel {
 }
 .hero-intro > * {
   animation: rise 1.1s var(--ease-out-expo) both;
+}
+/* KineticName: each letter rises out of its mask while stretching from condensed to its resting width */
+@keyframes name-rise {
+  from {
+    transform: translateY(108%);
+    font-stretch: 75%;
+    font-weight: 300;
+  }
+}
+.kinetic-char {
+  animation: name-rise 1.3s var(--ease-out-expo) backwards;
+  animation-delay: calc(150ms + var(--i) * 55ms);
+}
+/* reduced motion: the hero copy and name are simply there (the global rule above would still honor delays) */
+@media (prefers-reduced-motion: reduce) {
+  .kinetic-char,
+  .hero-intro > * {
+    animation: none;
+  }
 }
 .hero-intro > *:nth-child(1) {
   animation-delay: 0.5s;

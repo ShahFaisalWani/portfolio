@@ -13,14 +13,11 @@ export default function Toolbox() {
   const trayRef = useRef<HTMLDivElement>(null);
   const reduce = useReducedMotionPref();
   const fine = useFinePointer();
-  const [mode, setMode] = useState<"waiting" | "live" | "static">(reduce ? "static" : "waiting");
+  const [phase, setPhase] = useState<"waiting" | "live" | "failed">("waiting");
+  const mode = reduce || phase === "failed" ? "static" : phase;
 
   useEffect(() => {
-    if (reduce) {
-      setMode("static");
-      return;
-    }
-    setMode("waiting");
+    if (reduce) return;
     const tray = trayRef.current!;
     let handle: PhysicsHandle | null = null;
     let cancelled = false;
@@ -35,9 +32,9 @@ export default function Toolbox() {
                 if (cancelled || handle) return;
                 const items = Array.from(tray.querySelectorAll<HTMLElement>("[data-pill]"));
                 handle = startPhysics(tray, items, { draggable: fine });
-                setMode("live");
+                setPhase("live");
               })
-              .catch(() => setMode("static"));
+              .catch(() => setPhase("failed"));
           }
         } else handle?.pause();
       },
@@ -48,6 +45,7 @@ export default function Toolbox() {
       cancelled = true;
       io.disconnect();
       handle?.destroy();
+      setPhase((p) => (p === "live" ? "waiting" : p));
     };
   }, [reduce, fine]);
 

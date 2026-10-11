@@ -1,8 +1,8 @@
 import { useRef, useState } from "react";
-import { AnimatePresence, motion, useMotionValue, useReducedMotion, useSpring } from "motion/react";
+import { AnimatePresence, motion, useMotionValue, useSpring } from "motion/react";
 import { ArrowUpRight, Plus } from "@phosphor-icons/react";
 import { experiences } from "@/content/site";
-import { useFinePointer } from "@/lib/use-media";
+import { useFinePointer, useReducedMotionPref } from "@/lib/use-media";
 
 /*
   Experience as an index. Hovering a row floats that company's logo next to
@@ -14,7 +14,7 @@ const ease = [0.16, 1, 0.3, 1] as const;
 
 export default function Work() {
   const sectionRef = useRef<HTMLElement>(null);
-  const reduce = useReducedMotion();
+  const reduce = useReducedMotionPref();
   const fine = useFinePointer();
   const [hovered, setHovered] = useState<number | null>(null);
   const [open, setOpen] = useState<string | null>(experiences[0].id);

@@ -1,24 +1,33 @@
 import { lazy, Suspense, useEffect } from "react";
-import { Route, Routes, useLocation } from "react-router-dom";
+import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { ThemeProvider } from "@/lib/theme";
-import { initAnalytics, trackPageview } from "@/lib/analytics";
+import { trackPageview } from "@/lib/analytics";
+import { applyPageMeta, pageMeta } from "@/content/seo";
+import { hydrated } from "@/lib/prerender";
 import Home from "@/pages/Home";
 
 const Admin = lazy(() => import("@/pages/Admin"));
 
-initAnalytics();
-
 export default function App() {
   const location = useLocation();
+
+  useEffect(hydrated, []);
 
   useEffect(() => {
     trackPageview(location.pathname + location.search);
   }, [location]);
 
+  useEffect(() => {
+    if (location.pathname !== "/admin") applyPageMeta(pageMeta(location.pathname));
+  }, [location.pathname]);
+
   return (
     <ThemeProvider>
       <Routes>
-        <Route path="/" element={<Home />} />
+        {/* case studies open as a layer over Home, so both paths keep the same Home mounted */}
+        <Route path="/" element={<Home />}>
+          <Route path="projects/:id" element={null} />
+        </Route>
         <Route
           path="/admin"
           element={
@@ -27,7 +36,7 @@ export default function App() {
             </Suspense>
           }
         />
-        <Route path="*" element={<Home />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </ThemeProvider>
   );

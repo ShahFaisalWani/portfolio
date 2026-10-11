@@ -1,10 +1,12 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type CSSProperties } from "react";
 
 /*
   The name, set in Mona Sans with its width axis doing the work. On load each
-  letter rises out of a mask while stretching from condensed to wide. With a
-  fine pointer, letters near the cursor widen and get heavier, so the name
-  reacts like a lens passing over it. Direct style writes in rAF, no React state.
+  letter rises out of a mask while stretching from condensed to wide (CSS,
+  .kinetic-char in index.css, so it plays from the prerendered HTML's first
+  paint). With a fine pointer, letters near the cursor widen and get heavier,
+  so the name reacts like a lens passing over it. Direct style writes in rAF,
+  no React state.
 */
 
 const LINES = ["Faisal", "Wani."];
@@ -13,22 +15,6 @@ const BASE_WEIGHT = 640;
 
 export default function KineticName({ reduce, interactive }: { reduce: boolean; interactive: boolean }) {
   const rootRef = useRef<HTMLHeadingElement>(null);
-
-  // intro
-  useEffect(() => {
-    const chars = rootRef.current?.querySelectorAll<HTMLSpanElement>("[data-char]");
-    if (!chars || reduce) return;
-    const anims = Array.from(chars).map((el, i) =>
-      el.animate(
-        [
-          { transform: "translateY(108%)", fontStretch: "75%", fontWeight: 300 },
-          { transform: "translateY(0)", fontStretch: `${BASE_STRETCH}%`, fontWeight: BASE_WEIGHT },
-        ],
-        { duration: 1300, delay: 150 + i * 55, easing: "cubic-bezier(0.16, 1, 0.3, 1)", fill: "backwards" },
-      ),
-    );
-    return () => anims.forEach((a) => a.cancel());
-  }, [reduce]);
 
   // lens on hover
   useEffect(() => {
@@ -111,9 +97,9 @@ export default function KineticName({ reduce, interactive }: { reduce: boolean; 
           {line.split("").map((ch) => (
             <span
               key={`${line}-${n}`}
-              data-char={n++}
-              className="inline-block will-change-transform"
-              style={{ fontStretch: `${BASE_STRETCH}%`, fontWeight: BASE_WEIGHT }}
+              data-char={n}
+              className="kinetic-char inline-block will-change-transform"
+              style={{ fontStretch: `${BASE_STRETCH}%`, fontWeight: BASE_WEIGHT, "--i": n++ } as CSSProperties}
             >
               {ch}
             </span>

@@ -26,7 +26,7 @@ const fieldClass =
 
 export default function ContactDialog() {
   const { open, closeContact } = useContact();
-  const { lenis } = useSmoothScroll();
+  const { lock, unlock } = useSmoothScroll();
   const dialogRef = useRef<HTMLDialogElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const [status, setStatus] = useState<Status>("idle");
@@ -37,14 +37,14 @@ export default function ContactDialog() {
     if (!d) return;
     if (open && !d.open) {
       d.showModal();
-      lenis()?.stop();
+      lock();
     } else if (!open && d.open) {
       d.close();
     }
-  }, [open, lenis]);
+  }, [open, lock]);
 
   const onClose = () => {
-    lenis()?.start();
+    unlock();
     closeContact();
     setErrors({});
     if (status !== "sending") setStatus("idle");

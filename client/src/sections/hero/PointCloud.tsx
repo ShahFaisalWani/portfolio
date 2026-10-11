@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState, type RefObject } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type RefObject } from "react";
 import { Camera, Geometry, Mesh, Program, Renderer, Transform } from "ogl";
 import { ScrollTrigger } from "@/lib/gsap";
 import { useTheme } from "@/lib/theme";
+import { realmStore } from "@/lib/realm";
 import portraitUrl from "@/assets/media/portrait-points.png";
 import portraitFallback from "@/assets/media/faisal.webp";
 
@@ -94,6 +95,38 @@ function cssColor(name: string): [number, number, number] {
   return [((n >> 16) & 255) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255];
 }
 
+/* No GPU (or a blocklisted driver): WebGL falls back to drawing every point on the CPU. Show the still portrait. */
+function softwareRendered(gl: WebGLRenderingContext | WebGL2RenderingContext) {
+  let name = String(gl.getParameter(gl.RENDERER) ?? "");
+  if (!name || /^webkit webgl$/i.test(name)) {
+    const ext = gl.getExtension("WEBGL_debug_renderer_info");
+    if (ext) name = String(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL));
+  }
+  return /swiftshader|llvmpipe|softpipe|software|basic render/i.test(name);
+}
+
+/* The cloud is decoration: let the copy paint and the page hydrate before building it. */
+function afterLoad() {
+  return new Promise<void>((resolve) => {
+    const idle = () =>
+      "requestIdleCallback" in window ? requestIdleCallback(() => resolve(), { timeout: 1200 }) : setTimeout(resolve, 200);
+    if (document.readyState === "complete") idle();
+    else addEventListener("load", idle, { once: true });
+  });
+}
+
+/* A case study opened on load covers the hero: there is nothing to draw until it closes. */
+function uncovered() {
+  return new Promise<void>((resolve) => {
+    if (!realmStore.get()) return resolve();
+    const off = realmStore.subscribe(() => {
+      if (realmStore.get()) return;
+      off();
+      resolve();
+    });
+  });
+}
+
 async function samplePortrait(cols: number) {
   const img = new Image();
   img.src = portraitUrl;
@@ -161,6 +194,10 @@ export default function PointCloud({ triggerRef, reduce }: Props) {
     let cleanup = () => {};
 
     (async () => {
+      // creating the GL context is the expensive part on weak or GPU-less machines, so it waits too
+      await afterLoad();
+      await uncovered();
+      if (disposed) return;
       let renderer: Renderer;
       try {
         renderer = new Renderer({ dpr: Math.min(window.devicePixelRatio, 2), alpha: true, antialias: false });
@@ -169,6 +206,11 @@ export default function PointCloud({ triggerRef, reduce }: Props) {
         return;
       }
       const gl = renderer.gl;
+      if (softwareRendered(gl)) {
+        gl.getExtension("WEBGL_lose_context")?.loseContext();
+        setFailed(true);
+        return;
+      }
       gl.clearColor(0, 0, 0, 0);
       const narrow = window.innerWidth < 768;
       const sample = await samplePortrait(narrow ? 120 : 196);
@@ -306,9 +348,16 @@ export default function PointCloud({ triggerRef, reduce }: Props) {
       });
       ro.observe(wrap);
 
-      const io = new IntersectionObserver(([entry]) => (entry.isIntersecting ? start() : stop()));
+      // draw only while on screen, the tab is visible and no case study layer covers the page
+      let onScreen = false;
+      const sync = () => (onScreen && !document.hidden && !realmStore.get() ? start() : stop());
+      const io = new IntersectionObserver(([entry]) => {
+        onScreen = entry.isIntersecting;
+        sync();
+      });
       io.observe(wrap);
-      const onVisibility = () => (document.hidden ? stop() : start());
+      const onVisibility = sync;
+      const unsubscribeRealm = realmStore.subscribe(sync);
       document.addEventListener("visibilitychange", onVisibility);
 
       let st: ScrollTrigger | undefined;
@@ -327,7 +376,7 @@ export default function PointCloud({ triggerRef, reduce }: Props) {
 
       themeHook.current = () => {
         applyTheme();
-        if (reduce) render();
+        render();
       };
 
       render();
@@ -335,6 +384,7 @@ export default function PointCloud({ triggerRef, reduce }: Props) {
 
       cleanup = () => {
         stop();
+        unsubscribeRealm();
         ro.disconnect();
         io.disconnect();
         st?.kill();
@@ -352,11 +402,9 @@ export default function PointCloud({ triggerRef, reduce }: Props) {
     };
   }, [reduce, triggerRef]);
 
-  useEffect(() => {
-    // wait one frame so the new CSS variables are applied before reading them
-    const id = requestAnimationFrame(() => themeHook.current());
-    return () => cancelAnimationFrame(id);
-  }, [theme]);
+  // the theme switch sets html[data-theme] before React commits, so the new colors can be read here and
+  // drawn in the same frame the page flips (the view transition snapshots the canvas right after)
+  useLayoutEffect(() => themeHook.current(), [theme]);
 
   if (failed) {
     return (

@@ -29,3 +29,6 @@ dist-ssr
 # design QA screenshots
 .shots
 .playwright-cli
+
+# prerender build (scripts/prerender.mjs)
+.ssr

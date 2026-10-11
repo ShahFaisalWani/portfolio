@@ -1,17 +1,17 @@
-import { useEffect, useRef, useState } from "react";
-import { motion, useMotionValue, useReducedMotion, useSpring } from "motion/react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { motion, useMotionValue, useSpring } from "motion/react";
 import { ArrowUp, ArrowUpRight, Check, Copy } from "@phosphor-icons/react";
 import { person, socials } from "@/content/site";
 import { useContact } from "@/lib/contact";
 import { useSmoothScroll } from "@/lib/smooth-scroll";
-import { useFinePointer } from "@/lib/use-media";
+import { useFinePointer, useReducedMotionPref } from "@/lib/use-media";
 
 /* Closing poster: one contact action, the links, and the name cropped by the page edge. */
 
 function MagneticButton({ children, onClick }: { children: React.ReactNode; onClick: () => void }) {
   const ref = useRef<HTMLButtonElement>(null);
   const fine = useFinePointer();
-  const reduce = useReducedMotion();
+  const reduce = useReducedMotionPref();
   const x = useMotionValue(0);
   const y = useMotionValue(0);
   const sx = useSpring(x, { stiffness: 200, damping: 16, mass: 0.5 });
@@ -41,7 +41,12 @@ function MagneticButton({ children, onClick }: { children: React.ReactNode; onCl
   );
 }
 
+/* The page is prerendered at build time: hydrate with the build year, then show the visitor's year. */
+const noop = () => () => {};
+const useYear = () => useSyncExternalStore(noop, () => new Date().getFullYear(), () => __BUILD_YEAR__);
+
 export default function Footer() {
+  const year = useYear();
   const { openContact } = useContact();
   const { scrollTo } = useSmoothScroll();
   const [copied, setCopied] = useState<"idle" | "done" | "failed">("idle");
@@ -108,7 +113,7 @@ export default function Footer() {
         </ul>
 
         <div className="type-meta flex items-center justify-between py-6 text-muted">
-          <span>© {new Date().getFullYear()} {person.name}</span>
+          <span>© {year} {person.name}</span>
           <button
             type="button"
             onClick={() => scrollTo(0)}

@@ -1,9 +1,9 @@
 import { useRef } from "react";
 import { gsap, useGSAP } from "@/lib/gsap";
 import { useReducedMotionPref } from "@/lib/use-media";
-import portrait from "@/assets/media/faisal.webp";
-import robot from "@/assets/media/robox-1.webp";
-import football from "@/assets/media/fb-6-sm.webp";
+import portrait from "@/assets/media/faisal-pill.webp";
+import robot from "@/assets/media/robox-1-pill.webp";
+import football from "@/assets/media/fb-6-pill.webp";
 
 /*
   Manifesto. Words light up in reading order as the paragraph scrolls through
@@ -62,7 +62,7 @@ export default function About() {
         scrollTrigger: { trigger: "[data-facts]", start: "top 85%" },
       });
     },
-    { scope: ref, dependencies: [reduce] },
+    { scope: ref, dependencies: [reduce], revertOnUpdate: true },
   );
 
   let wordIndex = 0;

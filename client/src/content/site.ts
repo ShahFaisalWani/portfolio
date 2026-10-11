@@ -31,6 +31,19 @@ import certUkmt from "@/assets/media/cert-ukmt.webp";
 import certGacc from "@/assets/media/cert-gacc.webp";
 import certIgcse from "@/assets/media/cert-igcse.webp";
 import certEdexel from "@/assets/media/cert-edexel.webp";
+import certDegreeThumb from "@/assets/media/cert-degree-thumb.webp";
+import certGrade0Thumb from "@/assets/media/cert-grade-0-thumb.webp";
+import certGrade1Thumb from "@/assets/media/cert-grade-1-thumb.webp";
+import certHack0Thumb from "@/assets/media/cert-hack-0-thumb.webp";
+import certHack1Thumb from "@/assets/media/cert-hack-1-thumb.webp";
+import certHack2Thumb from "@/assets/media/cert-hack-2-thumb.webp";
+import certShopeeThumb from "@/assets/media/cert-shopee-code-league-2022-thumb.webp";
+import certKafkaThumb from "@/assets/media/cert-kafka-udemy-thumb.webp";
+import certTimoThumb from "@/assets/media/cert-timo-thumb.webp";
+import certUkmtThumb from "@/assets/media/cert-ukmt-thumb.webp";
+import certGaccThumb from "@/assets/media/cert-gacc-thumb.webp";
+import certIgcseThumb from "@/assets/media/cert-igcse-thumb.webp";
+import certEdexelThumb from "@/assets/media/cert-edexel-thumb.webp";
 
 export const person = {
   name: "Shah Faisal Wani",
@@ -126,9 +139,15 @@ export const experiences: Experience[] = [
 
 /* ------------------------------------------------------------ Projects */
 
-export type Media =
-  | { kind: "image"; src: string; alt: string; portrait?: boolean }
-  | { kind: "video"; src: string; poster: string; alt: string };
+/*
+  w and h are the intrinsic pixel size, so frames keep the real aspect ratio.
+  "wide" media get a full-width row on the case study page. focus is the
+  object-position used when the media is cropped (cards, case study hero).
+*/
+export type Media = { alt: string; w: number; h: number; span?: "wide"; focus?: string } & (
+  | { kind: "image"; src: string }
+  | { kind: "video"; src: string; poster: string }
+);
 
 export type Project = {
   id: "alwani" | "dbz" | "robox";
@@ -153,14 +172,14 @@ export const projects: Project[] = [
       "Integrated real-time booking and secure payments with Stripe.",
     ],
     stack: ["React", "Strapi", "Stripe"],
-    cover: { kind: "image", src: alwani2, alt: "Alwani Travel tour page with booking panel" },
+    cover: { kind: "image", src: alwani2, alt: "Alwani Travel tour page with booking panel", w: 1600, h: 958 },
     gallery: [
-      { kind: "image", src: alwani2, alt: "Tour detail page with date picker and pricing" },
-      { kind: "video", src: alwani1Video, poster: alwani1Poster, alt: "Scrolling through the Alwani Travel home page" },
-      { kind: "image", src: alwani6, alt: "Show listing with image carousel" },
-      { kind: "image", src: alwani4, alt: "Mobile home page", portrait: true },
-      { kind: "image", src: alwani5, alt: "Mobile tour page", portrait: true },
-      { kind: "image", src: alwani3, alt: "Values section and site footer" },
+      { kind: "image", src: alwani2, alt: "Tour detail page with date picker and pricing", w: 1600, h: 958 },
+      { kind: "video", src: alwani1Video, poster: alwani1Poster, alt: "Scrolling through the Alwani Travel home page", w: 400, h: 240 },
+      { kind: "image", src: alwani6, alt: "Show listing with image carousel", w: 1507, h: 1036 },
+      { kind: "image", src: alwani4, alt: "Mobile home page", w: 411, h: 898 },
+      { kind: "image", src: alwani5, alt: "Mobile tour page", w: 411, h: 898 },
+      { kind: "image", src: alwani3, alt: "Values section and site footer", w: 1600, h: 958, span: "wide" },
     ],
   },
   {
@@ -179,12 +198,12 @@ export const projects: Project[] = [
       label: "Read the write-up",
       href: "https://medium.com/@shahfaisalwani14/create-dragon-ball-nft-game-deploy-to-sepolia-testnet-6badfd52b906",
     },
-    cover: { kind: "video", src: dbz1Video, poster: dbz1Poster, alt: "Gameplay of the Dragon Ball memory card game" },
+    cover: { kind: "video", src: dbz1Video, poster: dbz1Poster, alt: "Gameplay of the Dragon Ball memory card game", w: 850, h: 508 },
     gallery: [
-      { kind: "video", src: dbz1Video, poster: dbz1Poster, alt: "Gameplay of the memory card game" },
-      { kind: "image", src: dbz2, alt: "Game start screen with wallet connect" },
-      { kind: "image", src: dbz4, alt: "Minted card collection on OpenSea" },
-      { kind: "image", src: dbz3, alt: "Single minted NFT detail page" },
+      { kind: "video", src: dbz1Video, poster: dbz1Poster, alt: "Gameplay of the memory card game", w: 850, h: 508 },
+      { kind: "image", src: dbz2, alt: "Game start screen with wallet connect", w: 720, h: 443 },
+      { kind: "image", src: dbz4, alt: "Minted card collection on OpenSea", w: 1600, h: 982, span: "wide" },
+      { kind: "image", src: dbz3, alt: "Single minted NFT detail page", w: 720, h: 377 },
     ],
   },
   {
@@ -198,15 +217,15 @@ export const projects: Project[] = [
       "Wrote the path planning for collision-free movement.",
     ],
     stack: ["ROS2", "SLAM", "LIDAR", "Circuits"],
-    cover: { kind: "image", src: robox1, alt: "The service robot with its LIDAR sensor on top" },
+    cover: { kind: "image", src: robox1, alt: "The service robot with its LIDAR sensor on top", w: 1000, h: 1333, focus: "50% 50%" },
     gallery: [
-      { kind: "image", src: robox5, alt: "Occupancy grid map built by the robot" },
-      { kind: "image", src: robox1, alt: "The robot, side view", portrait: true },
-      { kind: "image", src: robox2, alt: "The robot, top view with LIDAR", portrait: true },
-      { kind: "image", src: robox3, alt: "Odometry geometry for the drive model" },
-      { kind: "image", src: robox4, alt: "Raw LIDAR scan points" },
-      { kind: "image", src: robox6, alt: "RViz layout" },
-      { kind: "image", src: robox7, alt: "Navigation goal and costmap in RViz" },
+      { kind: "image", src: robox5, alt: "Occupancy grid map built by the robot", w: 785, h: 568 },
+      { kind: "image", src: robox1, alt: "The robot, side view", w: 1000, h: 1333 },
+      { kind: "image", src: robox2, alt: "The robot, top view with LIDAR", w: 1000, h: 1333 },
+      { kind: "image", src: robox3, alt: "Odometry geometry for the drive model", w: 1079, h: 701 },
+      { kind: "image", src: robox4, alt: "Raw LIDAR scan points", w: 725, h: 520 },
+      { kind: "image", src: robox6, alt: "RViz layout", w: 1061, h: 559, span: "wide" },
+      { kind: "image", src: robox7, alt: "Navigation goal and costmap in RViz", w: 1024, h: 646 },
     ],
   },
 ];
@@ -254,22 +273,33 @@ export type Cert = {
   issuer: string;
   year?: string;
   group: "Academic" | "Competitions" | "Courses";
+  /* full scan for the viewer, 640px thumbnail for the wall */
   image: string;
-  tall?: boolean;
+  thumb: string;
+  /* intrinsic pixel size of the scan */
+  w: number;
+  h: number;
 };
 
+/* Wall order and the one-line note on each group's cell. */
+export const certGroups: { id: Cert["group"]; note: string }[] = [
+  { id: "Academic", note: "Degree, GPA awards and international GCSEs." },
+  { id: "Competitions", note: "Hackathons, coding contests and maths olympiads." },
+  { id: "Courses", note: "Data, AI and event streaming fundamentals." },
+];
+
 export const certs: Cert[] = [
-  { id: "degree", title: "B.Eng Digital Engineering, Second Class Honours", issuer: "Prince of Songkla University", year: "2025", group: "Academic", image: certDegree },
-  { id: "grade-0", title: "Academic excellence, GPA 3.95", issuer: "PSU College of Computing", year: "2022", group: "Academic", image: certGrade0 },
-  { id: "grade-1", title: "Academic excellence, GPA 3.91", issuer: "PSU College of Computing", year: "2023", group: "Academic", image: certGrade1 },
-  { id: "igcse", title: "Cambridge IGCSE", issuer: "Cambridge Assessment International Education", group: "Academic", image: certIgcse, tall: true },
-  { id: "edexel", title: "Edexcel International GCSE", issuer: "Pearson", group: "Academic", image: certEdexel, tall: true },
-  { id: "hack-0", title: "HACKaTHAILAND Competition", issuer: "DEPA", year: "2022", group: "Competitions", image: certHack0 },
-  { id: "shopee", title: "Shopee Code League", issuer: "Shopee", year: "2022", group: "Competitions", image: certShopee },
-  { id: "ukmt", title: "Senior Mathematical Challenge, Silver", issuer: "UK Mathematics Trust", year: "2020", group: "Competitions", image: certUkmt },
-  { id: "timo", title: "Merit Award, TIMO", issuer: "Thailand International Mathematical Olympiad", year: "2018", group: "Competitions", image: certTimo },
-  { id: "gacc", title: "PSU Young GACC", issuer: "Prince of Songkla University", year: "2021", group: "Competitions", image: certGacc },
-  { id: "kafka", title: "Apache Kafka for Beginners", issuer: "Udemy", year: "2024", group: "Courses", image: certKafka },
-  { id: "hack-1", title: "Basic AI Course", issuer: "HACKaTHAILAND, DEPA and AIAT", year: "2022", group: "Courses", image: certHack1 },
-  { id: "hack-2", title: "Fundamental Data Analytics", issuer: "HACKaTHAILAND, DEPA and AIAT", year: "2021", group: "Courses", image: certHack2 },
+  { id: "degree", title: "B.Eng Digital Engineering, Second Class Honours", issuer: "Prince of Songkla University", year: "2025", group: "Academic", image: certDegree, thumb: certDegreeThumb, w: 1100, h: 829 },
+  { id: "grade-0", title: "Academic excellence, GPA 3.95", issuer: "PSU College of Computing", year: "2022", group: "Academic", image: certGrade0, thumb: certGrade0Thumb, w: 1100, h: 775 },
+  { id: "grade-1", title: "Academic excellence, GPA 3.91", issuer: "PSU College of Computing", year: "2023", group: "Academic", image: certGrade1, thumb: certGrade1Thumb, w: 1100, h: 775 },
+  { id: "igcse", title: "Cambridge IGCSE", issuer: "Cambridge Assessment International Education", group: "Academic", image: certIgcse, thumb: certIgcseThumb, w: 1100, h: 1535 },
+  { id: "edexel", title: "Edexcel International GCSE", issuer: "Pearson", group: "Academic", image: certEdexel, thumb: certEdexelThumb, w: 1100, h: 1516 },
+  { id: "hack-0", title: "HACKaTHAILAND Competition", issuer: "DEPA", year: "2022", group: "Competitions", image: certHack0, thumb: certHack0Thumb, w: 1100, h: 779 },
+  { id: "shopee", title: "Shopee Code League", issuer: "Shopee", year: "2022", group: "Competitions", image: certShopee, thumb: certShopeeThumb, w: 1100, h: 778 },
+  { id: "ukmt", title: "Senior Mathematical Challenge, Silver", issuer: "UK Mathematics Trust", year: "2020", group: "Competitions", image: certUkmt, thumb: certUkmtThumb, w: 1100, h: 810 },
+  { id: "timo", title: "Merit Award, TIMO", issuer: "Thailand International Mathematical Olympiad", year: "2018", group: "Competitions", image: certTimo, thumb: certTimoThumb, w: 1100, h: 774 },
+  { id: "gacc", title: "PSU Young GACC", issuer: "Prince of Songkla University", year: "2021", group: "Competitions", image: certGacc, thumb: certGaccThumb, w: 1100, h: 775 },
+  { id: "kafka", title: "Apache Kafka for Beginners", issuer: "Udemy", year: "2024", group: "Courses", image: certKafka, thumb: certKafkaThumb, w: 1100, h: 818 },
+  { id: "hack-1", title: "Basic AI Course", issuer: "HACKaTHAILAND, DEPA and AIAT", year: "2022", group: "Courses", image: certHack1, thumb: certHack1Thumb, w: 1100, h: 778 },
+  { id: "hack-2", title: "Fundamental Data Analytics", issuer: "HACKaTHAILAND, DEPA and AIAT", year: "2021", group: "Courses", image: certHack2, thumb: certHack2Thumb, w: 1100, h: 778 },
 ];

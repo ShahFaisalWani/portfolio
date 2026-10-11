@@ -44,7 +44,7 @@ export default function OffTheClock() {
       tl.fromTo("[data-zoom-copy] > *", { y: 60, opacity: 0 }, { y: 0, opacity: 1, duration: 0.14, stagger: 0.04 }, 0.72);
       tl.to({}, { duration: 0.1 });
     },
-    { scope: ref, dependencies: [reduce] },
+    { scope: ref, dependencies: [reduce], revertOnUpdate: true },
   );
 
   if (reduce) {

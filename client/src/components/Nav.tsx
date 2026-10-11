@@ -21,7 +21,7 @@ export default function Nav() {
   const [active, setActive] = useState<string | null>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
   const { openContact } = useContact();
-  const { scrollTo, lenis } = useSmoothScroll();
+  const { scrollTo, lock, unlock } = useSmoothScroll();
 
   useMotionValueEvent(scrollY, "change", (y) => {
     const prev = scrollY.getPrevious() ?? 0;
@@ -45,8 +45,7 @@ export default function Nav() {
 
   useEffect(() => {
     if (!menuOpen) return;
-    const l = lenis();
-    l?.stop();
+    lock();
     // keep focus inside the menu: everything behind it becomes inert
     const behind = [document.getElementById("main"), document.getElementById("section_contact")];
     behind.forEach((el) => el?.setAttribute("inert", ""));
@@ -55,12 +54,12 @@ export default function Nav() {
     window.addEventListener("keydown", onKey);
     requestAnimationFrame(() => document.querySelector<HTMLElement>("#mobile-menu a")?.focus());
     return () => {
-      l?.start();
+      unlock();
       behind.forEach((el) => el?.removeAttribute("inert"));
       window.removeEventListener("keydown", onKey);
       toggle?.focus({ preventScroll: true });
     };
-  }, [menuOpen, lenis]);
+  }, [menuOpen, lock, unlock]);
 
   const go = (e: React.MouseEvent, id: string) => {
     e.preventDefault();
