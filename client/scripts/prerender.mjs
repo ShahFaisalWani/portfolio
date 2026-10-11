@@ -1,7 +1,7 @@
 /*
   Runs after `vite build` (client) and `vite build --ssr src/entry-server.tsx` (into .ssr/):
   1. writes each indexable route as static HTML with its own <head>, ready for hydrateRoot
-  2. writes app.html, an empty noindex shell nginx serves for /admin and as the 404 page
+  2. writes app.html, an empty noindex shell for client-only routes (/admin) and nginx's 404 page
   3. generates sitemap.xml and llms.txt from the site content
   4. gzips text assets for nginx's gzip_static
 */
@@ -38,7 +38,8 @@ for (const route of routes) {
   app = app.replace(/^(?:<link [^>]*\/?>)+/, (m) => ((hints = m), ""));
   const head = [headTags(pageMeta(route)), ...fontPreloads, hints].filter(Boolean).join("\n    ");
   const html = template.replace("<!--seo-->", head).replace("<!--app-html-->", app);
-  const file = route === "/" ? path.join(dist, "index.html") : path.join(dist, route.slice(1), "index.html");
+  // /projects/robox -> projects/robox.html: static hosts (Render, nginx $uri.html) serve it without a trailing slash
+  const file = path.join(dist, route === "/" ? "index.html" : `${route.slice(1)}.html`);
   await mkdir(path.dirname(file), { recursive: true });
   await writeFile(file, html);
   console.log(`prerendered ${route} (${(html.length / 1024).toFixed(1)} kB)`);
@@ -50,6 +51,7 @@ const shell = template
   .replace("<!--seo-->", `<title>${person.name}</title>\n    <meta name="robots" content="noindex" />\n    ${fontPreloads.join("\n    ")}`)
   .replace("<!--app-html-->", "");
 await writeFile(path.join(dist, "app.html"), shell);
+await writeFile(path.join(dist, "admin.html"), shell);
 
 // 3. sitemap.xml and llms.txt
 const today = new Date().toISOString().slice(0, 10);
