@@ -1,21 +1,34 @@
-import { useRoutes } from 'react-router-dom';
-import routes from "./routes";
-import { ThemeProvider } from "@providers/theme-provider";
-import { CursorProvider } from "@providers/cursor-provider";
-import ReactGA from 'react-ga4';
+import { lazy, Suspense, useEffect } from "react";
+import { Route, Routes, useLocation } from "react-router-dom";
+import { ThemeProvider } from "@/lib/theme";
+import { initAnalytics, trackPageview } from "@/lib/analytics";
+import Home from "@/pages/Home";
 
-ReactGA.initialize(import.meta.env.VITE_GA_TRACKING_ID);
+const Admin = lazy(() => import("@/pages/Admin"));
 
-const App = () => {
-  const routing = useRoutes(routes);
+initAnalytics();
+
+export default function App() {
+  const location = useLocation();
+
+  useEffect(() => {
+    trackPageview(location.pathname + location.search);
+  }, [location]);
 
   return (
     <ThemeProvider>
-      <CursorProvider>
-        {routing}
-      </CursorProvider>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route
+          path="/admin"
+          element={
+            <Suspense fallback={null}>
+              <Admin />
+            </Suspense>
+          }
+        />
+        <Route path="*" element={<Home />} />
+      </Routes>
     </ThemeProvider>
-  )
-};
-
-export default App;
+  );
+}

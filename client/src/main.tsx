@@ -1,13 +1,13 @@
-import { BrowserRouter } from 'react-router-dom'
-import { createRoot } from 'react-dom/client'
-import { HelmetProvider } from 'react-helmet-async'
-import App from './App.tsx'
-import './styles/index.css'
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import { BrowserRouter } from "react-router-dom";
+import App from "./App";
+import "./styles/index.css";
 
-createRoot(document.getElementById('root')!).render(
-  <HelmetProvider>
+createRoot(document.getElementById("root")!).render(
+  <StrictMode>
     <BrowserRouter>
       <App />
     </BrowserRouter>
-  </HelmetProvider>,
-)
+  </StrictMode>,
+);

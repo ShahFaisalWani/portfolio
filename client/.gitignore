@@ -26,3 +26,6 @@ dist-ssr
 .env
 
 .DS_Store
+# design QA screenshots
+.shots
+.playwright-cli

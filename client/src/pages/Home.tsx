@@ -1,81 +1,51 @@
-import { HeroSection } from "@components/sections/hero-section";
-import { AboutSection } from "@components/sections/about-section";
-import { ExperienceSection } from "@components/sections/experience-section";
-import ProjectSection from "@components/sections/project-section";
-import { CertSection } from "@components/sections/cert-section";
-import TrafficMonitor from "@components/traffic-monitor";
-import { FootballSection } from "@components/sections/football-sections";
-import { SocialBar } from "@components/social-bar";
-import { SEO } from "@components/seo";
 import { useEffect } from "react";
-import { useLocation } from "react-router-dom";
-import ReactGA from "react-ga4";
+import Nav from "@/components/Nav";
+import ContactDialog from "@/components/ContactDialog";
+import Hero from "@/sections/hero/Hero";
+import About from "@/sections/About";
+import Work from "@/sections/Work";
+import Projects from "@/sections/projects/Projects";
+import Toolbox from "@/sections/toolbox/Toolbox";
+import Recognition from "@/sections/Recognition";
+import OffTheClock from "@/sections/OffTheClock";
+import Footer from "@/sections/Footer";
+import { ContactProvider } from "@/lib/contact";
+import { SmoothScrollProvider } from "@/lib/smooth-scroll";
+import { pingTraffic } from "@/lib/analytics";
 
-const Home = () => {
-  const location = useLocation();
+export default function Home() {
   useEffect(() => {
-    ReactGA.send({
-      hitType: "pageview",
-      page: location.pathname + location.search,
-    });
-  }, [location]);
+    // Pinned and scrubbed sections need a known starting point, so always open at the top.
+    if (!location.hash) {
+      history.scrollRestoration = "manual";
+      window.scrollTo(0, 0);
+    }
+    pingTraffic();
+  }, []);
 
   return (
-    <>
-      <SEO />
-      <div className="absolute top-0 h-screen w-screen z-0">
-        <TrafficMonitor />
-        <section
-          className="h-full w-full"
-          id="section_home"
-          aria-label="Hero section"
+    <SmoothScrollProvider>
+      <ContactProvider>
+        <a
+          href="#main"
+          className="btn btn-primary fixed left-4 top-3 z-50 -translate-y-24 focus-visible:translate-y-0"
         >
-          <HeroSection />
-        </section>
-
-        <section
-          className="w-full"
-          id="section_about"
-          aria-label="About section"
-        >
-          <AboutSection />
-        </section>
-
-        <section
-          className="h-fit w-full"
-          id="section_work"
-          aria-label="Work experience section"
-        >
-          <ExperienceSection />
-        </section>
-
-        <section
-          className="h-fit w-full"
-          id="section_projects"
-          aria-label="Projects and achievements section"
-        >
-          <ProjectSection />
-          <CertSection />
-          <FootballSection />
-        </section>
-
-        <footer
-          className="flex flex-col justify-between items-center gap-10 py-20 bg-bg mt-20"
-          role="contentinfo"
-        >
-          <h1 className="text-center text-5xl sm:text-7xl">
-            Thanks for visiting my portfolio
-          </h1>
-          <hr
-            className="hr-text w-[90vw] sm:w-[70vw] font-ramillas-light text-3xl"
-            data-content="Shah Faisal Wani"
-            aria-hidden="true"
-          ></hr>
-          <SocialBar isHome={true} />
-        </footer>
-      </div>
-    </>
+          Skip to content
+        </a>
+        <Nav />
+        <main id="main" tabIndex={-1} className="outline-none">
+          <Hero />
+          <About />
+          <Work />
+          <Projects />
+          <Toolbox />
+          <Recognition />
+          <OffTheClock />
+        </main>
+        <Footer />
+        <ContactDialog />
+        <div className="grain" aria-hidden="true" />
+      </ContactProvider>
+    </SmoothScrollProvider>
   );
-};
-
-export default Home;
+}
