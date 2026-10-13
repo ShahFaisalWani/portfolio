@@ -52,6 +52,10 @@ export default function Projects() {
           end: () => `+=${distance()}`,
           pin: true,
           scrub: 1,
+          // The pan only exists once the client knows the viewport, so on a prerendered page it is
+          // created after the ScrollTriggers below it. Refresh it first (this also makes GSAP refresh
+          // the rest in page order) so their starts include the pin's scroll distance.
+          refreshPriority: 1,
           invalidateOnRefresh: true,
           onRefresh: curve,
         },
