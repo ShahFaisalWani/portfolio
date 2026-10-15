@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Lenis from "lenis";
-import { ArrowLeft, ArrowUpRight } from "@phosphor-icons/react";
+import { ArrowLeft, ArrowUpRight, Pause, Play } from "@phosphor-icons/react";
 import { projects, type Media } from "@/content/site";
 import { gsap, ScrollTrigger, SplitText, useGSAP } from "@/lib/gsap";
 import { useRealm, type ProjectId } from "@/lib/realm";
@@ -15,8 +15,8 @@ import ProjectMedia from "./ProjectMedia";
   The hero cover is the shared element the card morphs into (lib/realm.tsx).
   Inside: the title stretches out of a mask on the Mona Sans width axis, the
   summary rises line by line, and each screenshot is scanned in by a curtain
-  with a signal line on its edge, then drifts with the scroll. The next-project
-  cover at the bottom morphs into the next case study's hero.
+  with a signal line on its edge. The next-project cover at the bottom morphs
+  into the next case study's hero.
 */
 
 type Row = { kind: "wide" | "duo" | "pair" | "solo"; items: Media[] };
@@ -42,7 +42,23 @@ function toRows(gallery: Media[]): Row[] {
   return rows;
 }
 
+/* The recordings loop, so each one gets a pause. With reduced motion they never play, so there is none. */
+function PlayToggle({ paused, onToggle }: { paused: boolean; onToggle: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      aria-label={paused ? "Play recording" : "Pause recording"}
+      className="absolute bottom-3 right-3 grid size-10 place-items-center rounded-full bg-surface-1/85 text-ink shadow-[inset_0_0_0_1px_var(--hairline)] backdrop-blur-md transition-[background-color,transform] duration-300 hover:bg-surface-2 active:scale-95 md:bottom-4 md:right-4"
+    >
+      {paused ? <Play size={15} weight="fill" aria-hidden="true" /> : <Pause size={15} weight="fill" aria-hidden="true" />}
+    </button>
+  );
+}
+
+/* Frames show the whole shot at its own aspect ratio: these are UIs, so nothing gets cropped for a parallax. */
 function Frame({ media, reduce, className = "", style }: { media: Media; reduce: boolean; className?: string; style?: React.CSSProperties }) {
+  const [paused, setPaused] = useState(false);
   return (
     <figure className={className} style={style}>
       <div
@@ -50,11 +66,10 @@ function Frame({ media, reduce, className = "", style }: { media: Media; reduce:
         className="relative overflow-hidden rounded-[16px] bg-surface-1"
         style={{ aspectRatio: `${media.w} / ${media.h}` }}
       >
-        <div data-frame-drift className={`absolute inset-x-0 ${reduce ? "inset-y-0" : "-inset-y-[6%]"}`}>
-          <div data-frame-media className="h-full w-full">
-            <ProjectMedia media={media} reduce={reduce} className="h-full w-full object-cover" />
-          </div>
+        <div data-frame-media className="absolute inset-0">
+          <ProjectMedia media={media} reduce={reduce} active={!paused} className="h-full w-full object-cover" />
         </div>
+        {media.kind === "video" && !reduce && <PlayToggle paused={paused} onToggle={() => setPaused(!paused)} />}
         {!reduce && (
           <div data-curtain aria-hidden="true" className="absolute inset-0 bg-canvas">
             <span className="absolute inset-x-0 bottom-0 h-px bg-accent" />
@@ -108,6 +123,12 @@ function GalleryRow({ row, index, reduce }: { row: Row; index: number; reduce: b
   );
 }
 
+/* The hero frame follows the cover's own shape within limits; a portrait photo gets a landscape crop. */
+const heroAspect = (m: Media) => {
+  const r = m.w / m.h;
+  return String(r < 1 ? 1.5 : Math.max(1.3, Math.min(1.78, r)));
+};
+
 export default function ProjectRealm({ id }: { id: ProjectId }) {
   const project = projects.find((p) => p.id === id)!;
   const next = projects[(projects.indexOf(project) + 1) % projects.length];
@@ -118,6 +139,7 @@ export default function ProjectRealm({ id }: { id: ProjectId }) {
   const reduce = useReducedMotionPref();
   // a direct visit hydrates a prerendered page: the hero is already painted, so it skips its intro
   const [fromHTML] = useState(isHydrating);
+  const [heroPaused, setHeroPaused] = useState(false);
   const rows = useMemo(() => toRows(project.gallery.filter((m) => m.src !== project.cover.src)), [project]);
   const [lead, ...rest] = rows;
 
@@ -158,7 +180,8 @@ export default function ProjectRealm({ id }: { id: ProjectId }) {
           .from(title.chars, { yPercent: 115, fontStretch: "75%", duration: 1.4, stagger: 0.026, clearProps: "fontStretch" }, 0)
           .from("[data-realm-meta]", { y: 18, opacity: 0, duration: 1 }, 0.2)
           .from("[data-bar-item]", { y: -14, opacity: 0, duration: 0.9, stagger: 0.07 }, 0.1);
-        if (!vt) intro.from("[data-hero-media]", { scale: 1.12, opacity: 0, duration: 1.8 }, 0);
+        // no shared-element morph (a browser without view transitions): the frame rises in on its own
+        if (!vt) intro.from("[data-cover-hero]", { y: 60, opacity: 0, duration: 1.6 }, 0.1);
       }
 
       // reading progress
@@ -168,10 +191,10 @@ export default function ProjectRealm({ id }: { id: ProjectId }) {
         { scaleX: 1, ease: "none", scrollTrigger: { scroller, trigger: contentRef.current, start: "top top", end: "bottom bottom", scrub: true } },
       );
 
-      // hero: the cover sinks slower than the page and the title lifts away
+      // hero: the title lifts away and the screen inside the frame leans in as the page moves on
       const hero = { scroller, trigger: "[data-realm-hero]", start: "top top", end: "bottom top", scrub: true };
-      gsap.to("[data-hero-media]", { yPercent: 22, ease: "none", scrollTrigger: hero });
-      gsap.to("[data-hero-copy]", { yPercent: -40, opacity: 0, ease: "none", scrollTrigger: { ...hero, end: "bottom 35%" } });
+      gsap.to("[data-hero-media]", { scale: 1.08, ease: "none", scrollTrigger: hero });
+      gsap.to("[data-hero-copy]", { yPercent: -30, opacity: 0, ease: "none", scrollTrigger: { ...hero, end: "top+=45% top" } });
 
       SplitText.create("[data-statement]", {
         type: "lines",
@@ -206,17 +229,12 @@ export default function ProjectRealm({ id }: { id: ProjectId }) {
           .from(li.querySelector("[data-detail-text]"), { y: 36, opacity: 0, duration: 1.1, ease: "expo.out" }, 0.1);
       });
 
-      // screenshots: a curtain lifts off with the signal line on its edge, then the image drifts
+      // screenshots: a curtain lifts off with the signal line on its edge while the shot settles from a zoom
       gsap.utils.toArray<HTMLElement>("[data-frame]").forEach((frame) => {
         gsap
           .timeline({ scrollTrigger: { scroller, trigger: frame, start: "top 86%" } })
           .to(frame.querySelector("[data-curtain]"), { yPercent: -101, duration: 1.25, ease: "expo.inOut" }, 0)
           .from(frame.querySelector("[data-frame-media]"), { scale: 1.3, duration: 1.8, ease: "expo.out" }, 0.15);
-        gsap.fromTo(
-          frame.querySelector("[data-frame-drift]"),
-          { yPercent: -4 },
-          { yPercent: 4, ease: "none", scrollTrigger: { scroller, trigger: frame, start: "top bottom", end: "bottom top", scrub: true } },
-        );
       });
 
       // inside a link: aria-label is not allowed on the span, and the letters still read as words
@@ -288,35 +306,37 @@ export default function ProjectRealm({ id }: { id: ProjectId }) {
           )}
         </div>
 
-        <header data-realm-hero className="relative h-[100dvh] min-h-[520px] overflow-hidden bg-surface-1">
-          <div data-cover-hero={project.id} className="absolute inset-0 overflow-hidden">
-            <div data-hero-media className="absolute inset-0 will-change-transform">
-              <ProjectMedia media={project.cover} reduce={reduce} eager className="h-full w-full object-cover object-top" />
+        {/* the cover is the product's own UI, so it sits undimmed in a frame under the title */}
+        <header data-realm-hero className="relative px-5 pt-24 md:px-10 md:pt-32">
+          <div className="mx-auto max-w-[1680px]">
+            <div data-hero-copy className="grid items-end gap-6 md:grid-cols-[minmax(0,1fr)_auto] md:gap-10">
+              <div>
+                <p data-realm-meta className="type-meta text-muted">
+                  {project.kicker}
+                </p>
+                <h1 id="realm-title" data-realm-title className="realm-title mt-4 max-w-[15ch]">
+                  {project.title}
+                </h1>
+              </div>
+              <ul data-realm-meta aria-label="Stack" className="flex flex-wrap gap-2 md:max-w-[24rem] md:justify-end md:pb-3">
+                {project.stack.map((s) => (
+                  <li key={s} className="chip">
+                    {s}
+                  </li>
+                ))}
+              </ul>
             </div>
-          </div>
-          {/* screenshots are busy: dim them a touch and let a deep bottom scrim carry the title */}
-          <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-scrim/20" />
-          <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-linear-to-b from-scrim/60 to-transparent" />
-          <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-linear-to-t from-scrim via-scrim/65 via-30% to-transparent to-70%" />
-          <div
-            data-hero-copy
-            className="absolute inset-x-0 bottom-0 mx-auto grid max-w-[1680px] items-end gap-6 px-5 pb-[max(2.25rem,env(safe-area-inset-bottom))] text-on-photo md:grid-cols-[minmax(0,1fr)_auto] md:gap-10 md:px-10 md:pb-14"
-          >
-            <div>
-              <p data-realm-meta className="type-meta text-on-photo/75">
-                {project.kicker}
-              </p>
-              <h1 id="realm-title" data-realm-title className="realm-title mt-4 max-w-[15ch]">
-                {project.title}
-              </h1>
+            <div
+              data-cover-hero={project.id}
+              className="relative mt-8 overflow-hidden rounded-[16px] bg-surface-1 md:mt-12"
+              style={{ aspectRatio: heroAspect(project.cover) }}
+            >
+              <div data-hero-media className="absolute inset-0 origin-top will-change-transform">
+                <ProjectMedia media={project.cover} reduce={reduce} eager active={!heroPaused} className="h-full w-full object-cover object-top" />
+              </div>
+              {project.cover.kind === "video" && !reduce && <PlayToggle paused={heroPaused} onToggle={() => setHeroPaused(!heroPaused)} />}
+              <span aria-hidden="true" className="pointer-events-none absolute inset-0 rounded-[16px] shadow-[inset_0_0_0_1px_var(--hairline)]" />
             </div>
-            <ul data-realm-meta aria-label="Stack" className="flex flex-wrap gap-2 md:max-w-[22rem] md:justify-end md:pb-3">
-              {project.stack.map((s) => (
-                <li key={s} className="chip text-on-photo/85 shadow-[inset_0_0_0_1px_color-mix(in_oklab,var(--color-on-photo)_32%,transparent)]">
-                  {s}
-                </li>
-              ))}
-            </ul>
           </div>
         </header>
 
@@ -330,28 +350,41 @@ export default function ProjectRealm({ id }: { id: ProjectId }) {
                 <dt className="type-meta text-muted">Type</dt>
                 <dd className="mt-2 text-[1.05rem] font-[560] tracking-[-0.01em]">{project.kicker}</dd>
               </div>
+              {project.role && (
+                <div data-fact>
+                  <dt className="type-meta text-muted">Role</dt>
+                  <dd className="mt-2 text-[1.05rem] font-[560] tracking-[-0.01em]">
+                    {project.role}
+                    {project.year && `, ${project.year}`}
+                  </dd>
+                </div>
+              )}
               <div data-fact>
                 <dt className="type-meta text-muted">Built with</dt>
                 <dd className="mt-2 text-[1.05rem] font-[560] tracking-[-0.01em]">{project.stack.join(", ")}</dd>
               </div>
-              {project.link && (
+              {project.links.length > 0 && (
+                // a link label with a domain is longer than half a phone's width
                 <div data-fact className="col-span-2 lg:col-span-1">
-                  <dt className="type-meta text-muted">Write-up</dt>
-                  <dd className="mt-2">
-                    <a
-                      href={project.link.href}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="group/link inline-flex items-center gap-1 text-[1.05rem] font-[560] text-accent"
-                    >
-                      <span className="link-underline">{project.link.label}</span>
-                      <ArrowUpRight
-                        size={14}
-                        weight="bold"
-                        aria-hidden="true"
-                        className="transition-transform group-hover/link:-translate-y-0.5 group-hover/link:translate-x-0.5"
-                      />
-                    </a>
+                  <dt className="type-meta text-muted">Links</dt>
+                  <dd className="mt-2 flex flex-col items-start gap-2">
+                    {project.links.map((l) => (
+                      <a
+                        key={l.href}
+                        href={l.href}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="group/link inline-flex items-center gap-1 text-[1.05rem] font-[560] text-accent"
+                      >
+                        <span className="link-underline">{l.label}</span>
+                        <ArrowUpRight
+                          size={14}
+                          weight="bold"
+                          aria-hidden="true"
+                          className="transition-transform group-hover/link:-translate-y-0.5 group-hover/link:translate-x-0.5"
+                        />
+                      </a>
+                    ))}
                   </dd>
                 </div>
               )}

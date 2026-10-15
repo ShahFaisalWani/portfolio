@@ -16,7 +16,7 @@ type Token = string | { img: string; alt: string; pos?: string };
 const MANIFESTO: Token[] = [
   "You dream it, I code it to life. I’m Faisal",
   { img: portrait, alt: "Faisal", pos: "50% 18%" },
-  ", a software engineer who builds AI platforms, real-time services and full-stack products. I studied Digital Engineering at PSU, built a robot",
+  ", an engineer who builds speech AI, LLM tooling and the full-stack products around them. I studied Digital Engineering at PSU, built a robot",
   { img: robot, alt: "The service robot", pos: "50% 45%" },
   "that maps its own room, and when I’m off work I’m on a football pitch",
   { img: football, alt: "Faisal playing football", pos: "62% 40%" },
@@ -24,10 +24,10 @@ const MANIFESTO: Token[] = [
 ];
 
 const FACTS = [
-  { label: "Now", value: "Full Stack Software Engineer at SCB 10X" },
+  { label: "Now", value: "Research Engineer at SCB DataX" },
+  { label: "Building", value: "Iqra AI, a voice tutor for Quran recitation" },
+  { label: "Before", value: "SCB 10X, Mojen.ai, SCG and Booktree" },
   { label: "Studied", value: "B.Eng Digital Engineering, Prince of Songkla University" },
-  { label: "Before", value: "Mojen.ai, Booktree and a 168-hour national hackathon" },
-  { label: "Also", value: "Part-time tutor and mentor" },
 ];
 
 export default function About() {

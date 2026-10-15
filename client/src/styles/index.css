@@ -148,6 +148,16 @@
     font-variant-numeric: tabular-nums;
   }
 
+  /* Project deck cards. The title widens from condensed as its card slides on top. */
+  .deck-title {
+    font-size: clamp(2.2rem, 3.5vw, 4rem);
+    font-weight: 640;
+    font-stretch: 112%;
+    letter-spacing: -0.045em;
+    line-height: 0.92;
+    text-wrap: balance;
+  }
+
   /* Case study layer. The titles share the name's width axis: they stretch out of their mask. */
   .realm-title {
     font-size: clamp(2.9rem, 7.4vw, 8.75rem);
@@ -340,12 +350,14 @@ dialog.sheet .sheet-panel {
 ::view-transition-new(project-cover) {
   height: 100%;
   object-fit: cover;
+  object-position: var(--cover-focus, 50% 0%);
   mix-blend-mode: normal;
 }
-/* No cross-fade on the cover (two crops would ghost): the sharper snapshot, the hero, stays opaque. */
+/* No cross-fade on the cover (two crops would ghost): the sharper snapshot, the hero, stays opaque.
+   Card cover and hero frame are both 16px surfaces, so the corners hold through the morph. */
 ::view-transition-image-pair(project-cover) {
   overflow: hidden;
-  animation: vt-round-out 0.9s var(--ease-in-out-quart) both;
+  border-radius: 16px;
 }
 ::view-transition-new(project-cover) {
   animation: none;
@@ -353,9 +365,6 @@ dialog.sheet .sheet-panel {
 ::view-transition-old(project-cover) {
   animation: none;
   opacity: 0;
-}
-html[data-vt="close"]::view-transition-image-pair(project-cover) {
-  animation-name: vt-round-in;
 }
 html[data-vt="close"]::view-transition-old(project-cover) {
   opacity: 1;
@@ -448,22 +457,6 @@ html[data-theme-switch] *::after {
   from {
     opacity: 0;
     transform: translateY(14px);
-  }
-}
-@keyframes vt-round-out {
-  from {
-    border-radius: 16px;
-  }
-  to {
-    border-radius: 0;
-  }
-}
-@keyframes vt-round-in {
-  from {
-    border-radius: 0;
-  }
-  to {
-    border-radius: 16px;
   }
 }
 @keyframes vt-recede {

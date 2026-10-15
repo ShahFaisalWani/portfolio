@@ -34,11 +34,25 @@ const personNode = {
   url: `${SITE_URL}/`,
   image: abs(portrait),
   email: `mailto:${person.email}`,
-  jobTitle: "Software Engineer",
-  worksFor: { "@type": "Organization", name: "SCB 10X" },
+  jobTitle: "Research Engineer",
+  worksFor: { "@type": "Organization", name: "SCB DataX" },
   alumniOf: { "@type": "CollegeOrUniversity", name: "Prince of Songkla University" },
   sameAs: socials.map((s) => s.href),
-  knowsAbout: ["React", "TypeScript", "Node.js", "Python", "FastAPI", "LLM serving", "Golang", "Docker", "Google Cloud", "ROS2"],
+  knowsAbout: [
+    "Speech recognition",
+    "LLM evaluation",
+    "AI observability",
+    "Python",
+    "TypeScript",
+    "FastAPI",
+    "Next.js",
+    "React",
+    "Node.js",
+    "Azure",
+    "Google Cloud",
+    "Docker",
+    "ROS2",
+  ],
 };
 
 const websiteNode = {
@@ -51,15 +65,15 @@ const websiteNode = {
 };
 
 function homeMeta(): PageMeta {
-  const title = "Shah Faisal Wani | Software Engineer & Full-Stack Developer";
+  const title = "Shah Faisal Wani | AI & Full-Stack Engineer";
   const description =
-    "Shah Faisal Wani is a software engineer building AI platforms, real-time services and full-stack products. Explore his work, projects and experience.";
+    "Shah Faisal Wani is an AI and full-stack engineer building speech AI, LLM evaluation and production web platforms. Explore his work, projects and experience.";
   return {
     path: "/",
     title,
     description,
     image: abs("/og/home.jpg"),
-    imageAlt: "Shah Faisal Wani, software engineer",
+    imageAlt: "Shah Faisal Wani, AI and full-stack engineer",
     type: "website",
     jsonLd: {
       "@context": "https://schema.org",
@@ -81,12 +95,15 @@ function homeMeta(): PageMeta {
   };
 }
 
+/* "Tour booking platform" -> "tour booking platform", but acronyms ("AI voice tutor", "B2B site") keep their case */
+const lowerFirst = (s: string) => (/^[A-Z][a-z]/.test(s) ? s[0].toLowerCase() + s.slice(1) : s);
+
 function projectMeta(p: Project): PageMeta {
   const url = `${SITE_URL}/projects/${p.id}`;
   const cover = p.cover.kind === "image" ? p.cover.src : p.cover.poster;
   return {
     path: `/projects/${p.id}`,
-    title: `${p.title}: ${p.kicker.toLowerCase()} case study | ${person.name}`,
+    title: `${p.title}: ${lowerFirst(p.kicker)} case study | ${person.name}`,
     description: p.summary,
     image: abs(`/og/${p.id}.jpg`),
     imageAlt: p.cover.alt,
@@ -115,7 +132,7 @@ function projectMeta(p: Project): PageMeta {
           keywords: p.stack.join(", "),
           image: abs(cover),
           author: { "@id": PERSON_ID },
-          ...(p.link ? { sameAs: p.link.href } : {}),
+          ...(p.links[0] ? { sameAs: p.links[0].href } : {}),
         },
         {
           "@type": "BreadcrumbList",

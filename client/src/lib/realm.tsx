@@ -43,23 +43,33 @@ function setLayerOpen(v: boolean) {
   listeners.forEach((fn) => fn());
 }
 
-/* Scrolls the home page (instantly, it is hidden) so the project's card sits in view. */
+/*
+  Scrolls the home page (instantly, it is hidden) so the project's card sits in view. A deck card
+  can be in the viewport yet covered by the cards above it, so the deck always scrolls to the
+  point where that card is on top (data-stack-at, set by Projects.tsx).
+*/
 function revealCard(id: ProjectId, scrollWindow: (y: number) => void) {
   const card = q(`[data-cover-card="${id}"]`);
-  if (!card || inView(card, 0.6)) return;
-  const st = ScrollTrigger.getById("projects-pan");
-  const panel = card.closest<HTMLElement>("[data-panel]");
-  if (st && panel?.parentElement) {
-    const distance = panel.parentElement.scrollWidth - innerWidth;
-    const progress = gsap.utils.clamp(0, 1, (panel.offsetLeft + panel.offsetWidth / 2 - innerWidth / 2) / distance);
-    scrollWindow(st.start + progress * (st.end - st.start));
+  if (!card) return;
+  const st = ScrollTrigger.getById("projects-stack");
+  const slot = card.closest<HTMLElement>("[data-stack-at]");
+  if (st && slot) {
+    const progress = gsap.utils.clamp(0, 1, Number(slot.dataset.stackAt));
+    scrollWindow(st.start + progress * (st.end - st.start) + 2);
     ScrollTrigger.update();
     st.getTween()?.progress(1);
-  } else {
+  } else if (!inView(card, 0.6)) {
     const r = card.getBoundingClientRect();
     scrollWindow(scrollY + r.top - (innerHeight - r.height) / 2);
     ScrollTrigger.update();
   }
+}
+
+/* The morph crops both snapshots like the card does (each cover has its own focus point). */
+function coverFocus(card: HTMLElement | null) {
+  const media = card?.querySelector<HTMLElement>("img, video");
+  const pos = media ? getComputedStyle(media).objectPosition : "50% 0%";
+  document.documentElement.style.setProperty("--cover-focus", pos);
 }
 
 export function RealmProvider({ children }: { children: ReactNode }) {
@@ -99,6 +109,7 @@ export function RealmProvider({ children }: { children: ReactNode }) {
     queueMicrotask(() => {
       if (from === null && routeId) {
         const card = q(`[data-cover-card="${routeId}"]`);
+        coverFocus(card);
         runTransition({
           kind: "open",
           name: "project-cover",
@@ -110,6 +121,7 @@ export function RealmProvider({ children }: { children: ReactNode }) {
         entered.current = false;
         const hero = q(`[data-cover-hero="${from}"]`);
         const shared = inView(hero, 0.3) ? hero : null;
+        coverFocus(q(`[data-cover-card="${from}"]`));
         runTransition({
           kind: shared ? "close" : "close-plain",
           name: "project-cover",

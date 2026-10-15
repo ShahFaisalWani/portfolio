@@ -94,13 +94,15 @@ export default function Work() {
                         <div className="hidden md:block" />
                         <div className="flex flex-col items-start gap-6">
                           <p className="type-lead max-w-[34ch] text-pretty">{exp.summary}</p>
-                          <ul className="flex flex-wrap gap-2" aria-label="Stack">
-                            {exp.stack.map((s) => (
-                              <li key={s} className="chip">
-                                {s}
-                              </li>
-                            ))}
-                          </ul>
+                          {exp.stack.length > 0 && (
+                            <ul className="flex flex-wrap gap-2" aria-label="Stack">
+                              {exp.stack.map((s) => (
+                                <li key={s} className="chip">
+                                  {s}
+                                </li>
+                              ))}
+                            </ul>
+                          )}
                           {exp.href && (
                             <a
                               href={exp.href}
@@ -108,7 +110,7 @@ export default function Work() {
                               rel="noreferrer"
                               className="group/link inline-flex items-center gap-1 text-[0.95rem] font-[560] text-accent"
                             >
-                              <span className="link-underline">Visit {exp.company}</span>
+                              <span className="link-underline">{exp.linkLabel ?? `Visit ${exp.company}`}</span>
                               <ArrowUpRight size={14} weight="bold" aria-hidden="true" className="transition-transform group-hover/link:-translate-y-0.5 group-hover/link:translate-x-0.5" />
                             </a>
                           )}

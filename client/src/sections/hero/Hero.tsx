@@ -26,8 +26,8 @@ export default function Hero() {
         <div className="hero-intro flex max-w-[30rem] flex-col items-start gap-6 self-start md:pt-6">
           <p className="type-meta text-muted">{person.role}</p>
           <p className="type-lead text-pretty text-ink">
-            I build AI platforms, real-time services and full-stack products, and once taught a robot to find its
-            own way.
+            I build speech AI, LLM evaluation and the full-stack products around them, and once taught a robot to
+            find its own way.
           </p>
           <div className="flex flex-wrap gap-3">
             <button type="button" className="btn btn-primary" onClick={openContact}>
