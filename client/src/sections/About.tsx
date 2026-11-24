@@ -1,14 +1,18 @@
 import { useRef } from "react";
 import { gsap, useGSAP } from "@/lib/gsap";
 import { useReducedMotionPref } from "@/lib/use-media";
+import { isHydrating } from "@/lib/prerender";
+import { inView } from "@/lib/view-transition";
 import portrait from "@/assets/media/faisal-pill.webp";
 import robot from "@/assets/media/robox-1-pill.webp";
 import football from "@/assets/media/fb-6-pill.webp";
 
 /*
-  Manifesto. Words light up in reading order as the paragraph scrolls through
-  the viewport, so the statement is read at the pace it is revealed.
-  Small photos sit inline in the sentence where the words mention them.
+  Manifesto as a live transcript. Words are typed in reading order as the paragraph scrolls
+  through the viewport: a caret runs ahead, and each word switches from a faint draft to ink
+  the moment the caret passes it. One effect only (no blur), so it reads as typing. Small photos sit inline where the words
+  mention them. A grainy gradient glows in the empty column beside it and swells as the
+  statement completes.
 */
 
 type Token = string | { img: string; alt: string; pos?: string };
@@ -36,22 +40,51 @@ export default function About() {
 
   useGSAP(
     () => {
-      if (reduce) return;
+      // a direct visit to #section_about paints the statement in full: don't take it back
+      if (reduce || (isHydrating() && inView(ref.current!.querySelector("[data-manifesto]"), 0.01))) return;
       const words = gsap.utils.toArray<HTMLElement>("[data-word]");
       const pics = gsap.utils.toArray<HTMLElement>("[data-pic]");
+      const caret = ref.current!.querySelector<HTMLElement>("[data-caret]")!;
+      const STAGGER = 0.05;
+      // each word flips to ink in one step as the caret passes, like a keystroke
+      const DUR = 0.05;
+      let shownCaret = -2;
       const tl = gsap.timeline({
         scrollTrigger: { trigger: "[data-manifesto]", start: "top 78%", end: "bottom 42%", scrub: 0.6 },
+        onUpdate: () => {
+          // the caret sits after the last word typed
+          const i = Math.min(words.length - 1, Math.floor((tl.time() - DUR) / STAGGER));
+          if (i === shownCaret) return;
+          shownCaret = i;
+          const w = words[i];
+          const done = i >= words.length - 1;
+          gsap.to(caret, { opacity: i < 0 || done ? 0 : 1, duration: 0.25, overwrite: "auto" });
+          if (!w) return;
+          gsap.set(caret, { x: w.offsetLeft + w.offsetWidth + 6, y: w.offsetTop + w.offsetHeight * 0.14 });
+        },
       });
-      tl.fromTo(words, { opacity: 0.14 }, { opacity: 1, stagger: 0.05, ease: "none", duration: 0.3 }, 0);
+      tl.fromTo(words, { opacity: 0.16 }, { opacity: 1, stagger: STAGGER, ease: "steps(1)", duration: DUR }, 0);
       pics.forEach((pic) => {
         const order = Number(pic.dataset.pic);
         tl.fromTo(
           pic,
           { scale: 0.2, opacity: 0 },
           { scale: 1, opacity: 1, ease: "back.out(2)", duration: 0.5 },
-          order * 0.05 - 0.1,
+          order * STAGGER - 0.1,
         );
       });
+
+      gsap.fromTo(
+        "[data-glow]",
+        { scale: 0.7, opacity: 0.25, yPercent: 12 },
+        {
+          scale: 1.08,
+          opacity: 1,
+          yPercent: -8,
+          ease: "none",
+          scrollTrigger: { trigger: ref.current, start: "top 85%", end: "bottom 40%", scrub: 1 },
+        },
+      );
 
       gsap.from("[data-fact]", {
         y: 30,
@@ -67,11 +100,15 @@ export default function About() {
 
   let wordIndex = 0;
   return (
-    <section ref={ref} id="section_about" aria-label="About" tabIndex={-1} className="relative outline-none px-5 pb-24 pt-28 md:px-10 md:pb-36 md:pt-44">
-      <div className="mx-auto max-w-[1680px]">
+    <section ref={ref} id="section_about" aria-label="About" tabIndex={-1} className="relative isolate overflow-x-clip outline-none px-5 pb-24 pt-28 md:px-10 md:pb-36 md:pt-44">
+      <div aria-hidden="true" data-glow className="grainient will-change-transform right-[-14vw] top-[6%] h-[min(78vh,52rem)] w-[min(62vw,60rem)] max-md:hidden">
+        <div className="grainient-glow" />
+        <div className="grainient-grain" />
+      </div>
+      <div className="relative mx-auto max-w-[1680px]">
         <p
           data-manifesto
-          className="max-w-[24ch] text-[clamp(1.85rem,4.3vw,4.25rem)] font-[560] leading-[1.06] tracking-[-0.035em] [font-stretch:106%]"
+          className="relative max-w-[24ch] text-[clamp(1.85rem,4.3vw,4.25rem)] font-[560] leading-[1.06] tracking-[-0.035em] [font-stretch:106%]"
         >
           {MANIFESTO.map((token, t) => {
             if (typeof token !== "string") {
@@ -83,7 +120,8 @@ export default function About() {
                 >
                   <img
                     src={token.img}
-                    alt={token.alt}
+                    // the sentence already names what the photo shows
+                    alt=""
                     loading="lazy"
                     className="absolute inset-0 h-full w-full object-cover"
                     style={{ objectPosition: token.pos }}
@@ -108,6 +146,11 @@ export default function About() {
               </span>
             );
           })}
+          {!reduce && (
+            <span data-caret aria-hidden="true" className="pointer-events-none absolute left-0 top-0 h-[0.74em] w-[0.09em] opacity-0">
+              <span className="transcript-caret block h-full w-full rounded-full bg-accent" />
+            </span>
+          )}
         </p>
 
         <dl

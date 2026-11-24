@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import BlurTitle from "@/components/BlurTitle";
 import { toolbox } from "@/content/site";
 import { useFinePointer, useReducedMotionPref } from "@/lib/use-media";
 import type { PhysicsHandle } from "./physics";
@@ -52,7 +53,7 @@ export default function Toolbox() {
   return (
     <section id="section_stack" aria-label="Tech stack" className="relative px-5 py-24 md:px-10 md:py-36">
       <div className="mx-auto max-w-[1680px]">
-        <h2 className="type-title">What I build with.</h2>
+        <BlurTitle className="type-title">What I build with.</BlurTitle>
         <p id="toolbox-hint" className="type-lead mt-6 max-w-[38ch] text-muted">
           {mode === "static"
             ? "The languages, frameworks and infrastructure I use most."
@@ -64,6 +65,7 @@ export default function Toolbox() {
 
         <div
           ref={trayRef}
+          data-cursor={fine && !reduce ? "Drag" : undefined}
           className={`relative mt-12 overflow-hidden rounded-[16px] bg-surface-1 md:mt-16 ${
             mode === "static"
               ? "p-6 md:p-10"

@@ -1,12 +1,11 @@
-import { useEffect, useRef, type CSSProperties } from "react";
+import { useRef, type CSSProperties } from "react";
+import { useWidthLens } from "@/lib/use-width-lens";
 
 /*
-  The name, set in Mona Sans with its width axis doing the work. On load each
-  letter rises out of a mask while stretching from condensed to wide (CSS,
-  .kinetic-char in index.css, so it plays from the prerendered HTML's first
-  paint). With a fine pointer, letters near the cursor widen and get heavier,
-  so the name reacts like a lens passing over it. Direct style writes in rAF,
-  no React state.
+  The name, set in Mona Sans with its width axis doing the work. On load each letter rises
+  out of a mask, out of focus, while stretching from condensed to wide (CSS, .kinetic-char in
+  index.css, so it plays from the prerendered HTML's first paint). With a fine pointer, letters
+  near the cursor widen and get heavier, like a lens passing over the name.
 */
 
 const LINES = ["Faisal", "Wani."];
@@ -15,75 +14,7 @@ const BASE_WEIGHT = 640;
 
 export default function KineticName({ reduce, interactive }: { reduce: boolean; interactive: boolean }) {
   const rootRef = useRef<HTMLHeadingElement>(null);
-
-  // lens on hover
-  useEffect(() => {
-    const root = rootRef.current;
-    if (!root || reduce || !interactive) return;
-    const chars = Array.from(root.querySelectorAll<HTMLSpanElement>("[data-char]"));
-    const state = chars.map(() => ({ s: BASE_STRETCH, w: BASE_WEIGHT }));
-    let centers: { x: number; y: number }[] = [];
-    let pointer = { x: -1e4, y: -1e4 };
-    let raf = 0;
-    let active = false;
-
-    const measure = () => {
-      centers = chars.map((el) => {
-        const r = el.getBoundingClientRect();
-        return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
-      });
-    };
-
-    const tick = () => {
-      const size = parseFloat(getComputedStyle(root).fontSize);
-      let moving = false;
-      chars.forEach((el, i) => {
-        const c = centers[i];
-        const dx = (pointer.x - c.x) / (size * 1.6);
-        const dy = (pointer.y - c.y) / (size * 0.9);
-        const k = active ? Math.max(0, 1 - Math.sqrt(dx * dx + dy * dy)) : 0;
-        const e = k * k * (3 - 2 * k);
-        const ts = active ? 100 + 25 * e : BASE_STRETCH;
-        const tw = active ? 520 + 330 * e : BASE_WEIGHT;
-        const st = state[i];
-        st.s += (ts - st.s) * 0.14;
-        st.w += (tw - st.w) * 0.14;
-        if (Math.abs(ts - st.s) > 0.05 || Math.abs(tw - st.w) > 0.5) moving = true;
-        el.style.fontStretch = `${st.s.toFixed(2)}%`;
-        el.style.fontWeight = `${Math.round(st.w)}`;
-      });
-      raf = moving || active ? requestAnimationFrame(tick) : 0;
-    };
-    const kick = () => {
-      if (!raf) raf = requestAnimationFrame(tick);
-    };
-
-    const onEnter = () => {
-      measure();
-      active = true;
-      kick();
-    };
-    const onMove = (e: PointerEvent) => {
-      pointer = { x: e.clientX, y: e.clientY };
-      kick();
-    };
-    const onLeave = () => {
-      active = false;
-      kick();
-    };
-
-    root.addEventListener("pointerenter", onEnter);
-    root.addEventListener("pointermove", onMove);
-    root.addEventListener("pointerleave", onLeave);
-    window.addEventListener("resize", measure);
-    return () => {
-      cancelAnimationFrame(raf);
-      root.removeEventListener("pointerenter", onEnter);
-      root.removeEventListener("pointermove", onMove);
-      root.removeEventListener("pointerleave", onLeave);
-      window.removeEventListener("resize", measure);
-    };
-  }, [reduce, interactive]);
+  useWidthLens(rootRef, { enabled: !reduce && interactive });
 
   let n = 0;
   return (

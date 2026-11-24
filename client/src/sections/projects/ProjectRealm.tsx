@@ -177,7 +177,11 @@ export default function ProjectRealm({ id }: { id: ProjectId }) {
         const title = SplitText.create("[data-realm-title]", { type: "words,chars", tag: "span", mask: "words", wordsClass: "split-word" });
         const intro = gsap.timeline({ delay, defaults: { ease: "expo.out" } });
         intro
-          .from(title.chars, { yPercent: 115, fontStretch: "75%", duration: 1.4, stagger: 0.026, clearProps: "fontStretch" }, 0)
+          // Chrome rounds font-stretch to 0.25% steps, so a long ease-out tail makes the letters tick
+          // one by one as they settle. The width gets its own short in-out ease and lands while the
+          // letters are still rising.
+          .from(title.chars, { yPercent: 115, duration: 1.4, stagger: 0.026 }, 0)
+          .from(title.chars, { fontStretch: "75%", duration: 0.75, stagger: 0.026, ease: "power3.inOut", clearProps: "fontStretch" }, 0)
           .from("[data-realm-meta]", { y: 18, opacity: 0, duration: 1 }, 0.2)
           .from("[data-bar-item]", { y: -14, opacity: 0, duration: 0.9, stagger: 0.07 }, 0.1);
         // no shared-element morph (a browser without view transitions): the frame rises in on its own
@@ -245,15 +249,11 @@ export default function ProjectRealm({ id }: { id: ProjectId }) {
         wordsClass: "split-word",
         aria: "none",
       });
-      gsap.from(nextTitle.chars, {
-        yPercent: 115,
-        fontStretch: "75%",
-        duration: 1.3,
-        stagger: 0.022,
-        ease: "expo.out",
-        clearProps: "fontStretch",
-        scrollTrigger: { scroller, trigger: "[data-next]", start: "top 78%" },
-      });
+      // the width on its own short in-out ease, for the reason given at the title intro
+      gsap
+        .timeline({ scrollTrigger: { scroller, trigger: "[data-next]", start: "top 78%" } })
+        .from(nextTitle.chars, { yPercent: 115, duration: 1.3, stagger: 0.022, ease: "expo.out" }, 0)
+        .from(nextTitle.chars, { fontStretch: "75%", duration: 0.7, stagger: 0.022, ease: "power3.inOut", clearProps: "fontStretch" }, 0);
       gsap.fromTo(
         "[data-next-cover-inner]",
         { scale: 1.18 },

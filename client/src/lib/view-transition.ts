@@ -12,10 +12,6 @@ export type TransitionKind =
   | "close-plain"
   | "swap"
   | "swap-plain"
-  | "cert-open"
-  | "cert-close"
-  | "cert-next"
-  | "cert-prev"
   | "theme";
 
 export function canTransition() {

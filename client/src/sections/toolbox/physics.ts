@@ -1,4 +1,5 @@
 import Matter from "matter-js";
+import { play, soundStore } from "@/lib/sound";
 
 /*
   Drives real DOM pills with Matter.js bodies. The DOM keeps text crisp and
@@ -40,6 +41,18 @@ export function startPhysics(
     return b;
   });
   Composite.add(world, bodies);
+
+  // with sound on, pills knock: a wooden tap scaled by how hard they meet (throttled in lib/sound)
+  Events.on(engine, "collisionStart", (e) => {
+    if (!soundStore.get()) return;
+    let hardest = 0;
+    for (const pair of e.pairs) {
+      const a = pair.bodyA.velocity;
+      const b = pair.bodyB.velocity;
+      hardest = Math.max(hardest, Math.hypot(a.x - b.x, a.y - b.y));
+    }
+    if (hardest > 1.2) play("collide", hardest / 14);
+  });
 
   items.forEach((el) => {
     el.style.position = "absolute";

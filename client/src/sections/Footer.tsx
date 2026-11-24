@@ -5,8 +5,16 @@ import { person, socials } from "@/content/site";
 import { useContact } from "@/lib/contact";
 import { useSmoothScroll } from "@/lib/smooth-scroll";
 import { useFinePointer, useReducedMotionPref } from "@/lib/use-media";
+import { useWidthLens } from "@/lib/use-width-lens";
+import BlurTitle from "@/components/BlurTitle";
+import Scramble from "@/components/Scramble";
+import MeshGradient from "./MeshGradient";
 
-/* Closing poster: one contact action, the links, and the name cropped by the page edge. */
+/*
+  Closing poster: one contact action, the links, and the name cropped by the page edge. A mesh
+  gradient gathers at the bottom and the wordmark fades down into it; the wordmark answers
+  the pointer on its width axis like the name in the hero.
+*/
 
 function MagneticButton({ children, onClick }: { children: React.ReactNode; onClick: () => void }) {
   const ref = useRef<HTMLButtonElement>(null);
@@ -45,8 +53,35 @@ function MagneticButton({ children, onClick }: { children: React.ReactNode; onCl
 const noop = () => () => {};
 const useYear = () => useSyncExternalStore(noop, () => new Date().getFullYear(), () => __BUILD_YEAR__);
 
+function Wordmark() {
+  const ref = useRef<HTMLParagraphElement>(null);
+  const fine = useFinePointer();
+  const reduce = useReducedMotionPref();
+  useWidthLens(ref, {
+    enabled: fine && !reduce,
+    base: { stretch: 112, weight: 640 },
+    lens: { stretch: [84, 125], weight: [420, 860] },
+    reach: [1.1, 1.2],
+  });
+  let n = 0;
+  return (
+    <p
+      ref={ref}
+      aria-hidden="true"
+      className="type-display wordmark-fade -mb-[0.2em] mt-4 select-none whitespace-nowrap text-center text-[17.2vw] leading-[0.78] text-ink"
+    >
+      {"faisal wani".split("").map((ch) => (
+        <span key={n} data-char={n++} className="inline-block" style={{ fontStretch: "112%", fontWeight: 640 }}>
+          {ch === " " ? "\u00a0" : ch}
+        </span>
+      ))}
+    </p>
+  );
+}
+
 export default function Footer() {
   const year = useYear();
+  const reduce = useReducedMotionPref();
   const { openContact } = useContact();
   const { scrollTo } = useSmoothScroll();
   const [copied, setCopied] = useState<"idle" | "done" | "failed">("idle");
@@ -69,9 +104,10 @@ export default function Footer() {
   const links = [{ label: "Email", href: `mailto:${person.email}` }, ...socials];
 
   return (
-    <footer id="section_contact" className="relative overflow-hidden px-5 pt-28 md:px-10 md:pt-44">
+    <footer id="section_contact" className="relative isolate overflow-hidden px-5 pt-28 md:px-10 md:pt-44">
+      <MeshGradient reduce={reduce} />
       <div className="mx-auto max-w-[1680px]">
-        <h2 className="type-display max-w-[12ch] text-[clamp(3.2rem,9.5vw,10rem)] leading-[0.86]">Let’s build something.</h2>
+        <BlurTitle className="type-display max-w-[12ch] text-[clamp(3.2rem,9.5vw,10rem)] leading-[0.86]">Let’s build something.</BlurTitle>
 
         <div className="mt-12 flex flex-wrap items-center gap-x-6 gap-y-4 md:mt-16">
           <MagneticButton onClick={openContact}>Get in touch</MagneticButton>
@@ -81,7 +117,7 @@ export default function Footer() {
             aria-label={`Copy ${person.email}`}
             className="group inline-flex items-center gap-2.5 rounded-full px-2 py-2 text-[1.05rem] font-[540] text-muted transition-colors hover:text-ink"
           >
-            <span className="break-all">{person.email}</span>
+            <Scramble text={person.email} hover duration={700} className="break-all" />
             <span className="grid size-8 place-items-center rounded-full bg-surface-1 transition-colors group-hover:bg-surface-2">
               {copied === "done" ? <Check size={14} weight="bold" aria-hidden="true" /> : <Copy size={14} weight="bold" aria-hidden="true" />}
             </span>
@@ -91,9 +127,9 @@ export default function Footer() {
           </span>
         </div>
 
-        <ul className="mt-24 grid grid-cols-2 border-t border-hairline md:mt-32 md:grid-cols-4">
+        <ul data-spot-group className="mt-24 grid grid-cols-2 border-t border-hairline md:mt-32 md:grid-cols-4">
           {links.map((l, i) => (
-            <li key={l.label} className={`border-b border-hairline ${i % 2 === 1 ? "border-l" : ""} ${i > 0 ? "md:border-l" : ""}`}>
+            <li key={l.label} className={`spot spot-cell border-b border-hairline ${i % 2 === 1 ? "border-l" : ""} ${i > 0 ? "md:border-l" : ""}`}>
               <a
                 href={l.href}
                 target={l.href.startsWith("http") ? "_blank" : undefined}
@@ -112,7 +148,7 @@ export default function Footer() {
           ))}
         </ul>
 
-        <div className="type-meta flex items-center justify-between py-6 text-muted">
+        <div className="type-meta flex items-center justify-between py-6 text-ink">
           <span>© {year} {person.name}</span>
           <button
             type="button"
@@ -125,12 +161,7 @@ export default function Footer() {
         </div>
       </div>
 
-      <p
-        aria-hidden="true"
-        className="type-display pointer-events-none -mb-[0.2em] mt-4 select-none whitespace-nowrap text-center text-[17.2vw] leading-[0.78] text-surface-2"
-      >
-        faisal wani
-      </p>
+      <Wordmark />
     </footer>
   );
 }

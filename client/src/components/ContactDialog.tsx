@@ -82,7 +82,7 @@ export default function ContactDialog() {
     >
       <div className="pointer-events-none flex h-full w-full items-end justify-end p-2 sm:p-3">
         <div
-          className="sheet-panel pointer-events-auto flex max-h-full w-full flex-col overflow-y-auto rounded-[16px] bg-surface-1 p-6 shadow-[inset_0_1px_0_rgb(255_255_255/0.06),0_30px_80px_rgb(0_0_0/0.35)] sm:h-full sm:max-w-[34rem] sm:p-9"
+          className="sheet-panel paper pointer-events-auto flex max-h-full w-full flex-col overflow-y-auto rounded-[16px] bg-surface-1 p-6 shadow-[inset_0_1px_0_rgb(255_255_255/0.06),0_30px_80px_rgb(0_0_0/0.35)] sm:h-full sm:max-w-[34rem] sm:p-9"
           data-lenis-prevent
         >
           <div className="flex items-start justify-between gap-6">

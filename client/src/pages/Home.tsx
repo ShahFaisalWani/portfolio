@@ -10,10 +10,14 @@ import Toolbox from "@/sections/toolbox/Toolbox";
 import Recognition from "@/sections/recognition/Recognition";
 import OffTheClock from "@/sections/OffTheClock";
 import Footer from "@/sections/Footer";
+import LogoMarquee from "@/sections/LogoMarquee";
+import Cursor from "@/components/Cursor";
 import { ContactProvider } from "@/lib/contact";
 import { RealmProvider, useRealm } from "@/lib/realm";
 import { SmoothScrollProvider } from "@/lib/smooth-scroll";
 import { pingTraffic } from "@/lib/analytics";
+import { useUiSounds } from "@/lib/sound";
+import { useSpotlight } from "@/lib/spotlight";
 
 /* The page, plus the case study layer that opens over it at /projects/:id. */
 function Layers() {
@@ -30,6 +34,7 @@ function Layers() {
         <Nav />
         <main id="main" tabIndex={-1} className="outline-none">
           <Hero />
+          <LogoMarquee />
           <About />
           <Work />
           <Projects />
@@ -53,6 +58,8 @@ export default function Home() {
     }
     pingTraffic();
   }, []);
+  useUiSounds();
+  useSpotlight();
 
   return (
     <SmoothScrollProvider>
@@ -61,6 +68,7 @@ export default function Home() {
           <Layers />
           <ContactDialog />
           <div className="grain" aria-hidden="true" />
+          <Cursor />
         </RealmProvider>
       </ContactProvider>
     </SmoothScrollProvider>

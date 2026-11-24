@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useMotionValueEvent, useReducedMotion, useScroll } from "motion/react";
 import { List, X } from "@phosphor-icons/react";
 import ThemeToggle from "./ThemeToggle";
+import SoundToggle from "./SoundToggle";
+import Scramble from "./Scramble";
 import { useContact } from "@/lib/contact";
 import { useSmoothScroll } from "@/lib/smooth-scroll";
 import { trackEvent } from "@/lib/analytics";
@@ -20,13 +22,15 @@ export default function Nav() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [active, setActive] = useState<string | null>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
+  const headerRef = useRef<HTMLElement>(null);
   const { openContact } = useContact();
   const { scrollTo, lock, unlock } = useSmoothScroll();
 
   useMotionValueEvent(scrollY, "change", (y) => {
     const prev = scrollY.getPrevious() ?? 0;
     setScrolled(y > 24);
-    setHidden(y > prev && y > 480 && !menuOpen);
+    // never slide away while it holds keyboard focus
+    setHidden(y > prev && y > 480 && !menuOpen && !headerRef.current?.contains(document.activeElement));
   });
 
   useEffect(() => {
@@ -62,6 +66,8 @@ export default function Nav() {
   }, [menuOpen, lock, unlock]);
 
   const go = (e: React.MouseEvent, id: string) => {
+    // let modified clicks open the section link in a new tab
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
     e.preventDefault();
     setMenuOpen(false);
     scrollTo(`#${id}`);
@@ -73,6 +79,9 @@ export default function Nav() {
   return (
     <>
       <motion.header
+        // a keyboard user tabbing into the hidden bar brings it back
+        ref={headerRef}
+        onFocusCapture={() => setHidden(false)}
         className="fixed inset-x-0 top-0 z-40"
         animate={{ y: hidden ? "-100%" : "0%" }}
         transition={{ duration: reduce ? 0 : 0.45, ease: [0.16, 1, 0.3, 1] }}
@@ -89,6 +98,7 @@ export default function Nav() {
               href="/"
               className="group flex items-center gap-2.5 rounded-full"
               onClick={(e) => {
+                if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
                 e.preventDefault();
                 scrollTo(0);
               }}
@@ -109,7 +119,7 @@ export default function Nav() {
                         active === l.id ? "text-ink" : "text-muted"
                       }`}
                     >
-                      {l.label}
+                      <Scramble text={l.label} hover duration={480} />
                       {active === l.id && (
                         <motion.span
                           layoutId="nav-active"
@@ -124,11 +134,12 @@ export default function Nav() {
               <button type="button" className="btn btn-primary hidden h-10 sm:inline-flex" onClick={openContact}>
                 Get in touch
               </button>
+              <SoundToggle />
               <ThemeToggle />
               <button
                 ref={toggleRef}
                 type="button"
-                className="grid size-11 place-items-center rounded-full hover:bg-surface-1 md:hidden"
+                className="grid size-11 place-items-center rounded-full transition-colors duration-300 hover:bg-surface-1 active:scale-95 md:hidden"
                 aria-label={menuOpen ? "Close menu" : "Open menu"}
                 aria-expanded={menuOpen}
                 aria-controls="mobile-menu"

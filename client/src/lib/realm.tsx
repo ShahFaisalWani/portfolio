@@ -2,16 +2,18 @@ import { createContext, useCallback, useContext, useEffect, useLayoutEffect, use
 import { flushSync } from "react-dom";
 import { useMatch, useNavigate } from "react-router-dom";
 import { projects, type Project } from "@/content/site";
-import { gsap, ScrollTrigger } from "./gsap";
+import { ScrollTrigger } from "./gsap";
 import { useSmoothScroll } from "./smooth-scroll";
 import { trackEvent } from "./analytics";
 import { inView, runTransition } from "./view-transition";
+import { pixelSwap } from "./pixel-transition";
 
 /*
   Case studies live at /projects/:id but open as a layer over the home page, so
   the page underneath keeps its scroll position, pinned state and WebGL. This
-  provider turns route changes into transitions: card cover -> full-bleed hero
-  on open, hero -> card on close, next-project cover -> hero on swap. It works
+  provider turns route changes into transitions: card cover -> framed hero on
+  open, hero -> card on close, and a pixel curtain (lib/pixel-transition.ts) from
+  one case study to the next or when the shared element is off screen. It works
   the same for in-page buttons and the browser's back and forward.
 */
 
@@ -44,25 +46,19 @@ function setLayerOpen(v: boolean) {
 }
 
 /*
-  Scrolls the home page (instantly, it is hidden) so the project's card sits in view. A deck card
-  can be in the viewport yet covered by the cards above it, so the deck always scrolls to the
-  point where that card is on top (data-stack-at, set by Projects.tsx).
+  The project index (Projects.tsx) shows one featured cover at a time on its screen. It registers
+  here how to bring a project's cover on screen: scroll its row to the middle and swap at once.
 */
+export const coverStage: { reveal: ((id: ProjectId, scrollWindow: (y: number) => void) => boolean) | null } = { reveal: null };
+
+/* Scrolls the home page (instantly, it is hidden) so the project's card sits in view. */
 function revealCard(id: ProjectId, scrollWindow: (y: number) => void) {
+  if (coverStage.reveal?.(id, scrollWindow)) return;
   const card = q(`[data-cover-card="${id}"]`);
-  if (!card) return;
-  const st = ScrollTrigger.getById("projects-stack");
-  const slot = card.closest<HTMLElement>("[data-stack-at]");
-  if (st && slot) {
-    const progress = gsap.utils.clamp(0, 1, Number(slot.dataset.stackAt));
-    scrollWindow(st.start + progress * (st.end - st.start) + 2);
-    ScrollTrigger.update();
-    st.getTween()?.progress(1);
-  } else if (!inView(card, 0.6)) {
-    const r = card.getBoundingClientRect();
-    scrollWindow(scrollY + r.top - (innerHeight - r.height) / 2);
-    ScrollTrigger.update();
-  }
+  if (!card || inView(card, 0.6)) return;
+  const r = card.getBoundingClientRect();
+  scrollWindow(scrollY + r.top - (innerHeight - r.height) / 2);
+  ScrollTrigger.update();
 }
 
 /* The morph crops both snapshots like the card does (each cover has its own focus point). */
@@ -110,38 +106,42 @@ export function RealmProvider({ children }: { children: ReactNode }) {
       if (from === null && routeId) {
         const card = q(`[data-cover-card="${routeId}"]`);
         coverFocus(card);
+        // the cover morphs into the hero when it is on screen; otherwise the page dissolves in pixels
+        if (!inView(card, 0.2)) {
+          pixelSwap(commit);
+          return;
+        }
         runTransition({
           kind: "open",
           name: "project-cover",
-          from: inView(card, 0.2) ? card : null,
+          from: card,
           update: commit,
           to: () => q(`[data-cover-hero="${routeId}"]`),
         });
       } else if (from && routeId === null) {
         entered.current = false;
         const hero = q(`[data-cover-hero="${from}"]`);
-        const shared = inView(hero, 0.3) ? hero : null;
         coverFocus(q(`[data-cover-card="${from}"]`));
+        const update = () => {
+          commit();
+          revealCard(from, scrollWindow);
+        };
+        const refocus = () => q(`[data-card-link="${from}"]`)?.focus({ preventScroll: true });
+        // the hero shrinks back into its card while it is on screen; scrolled away, the layer dissolves in pixels
+        if (!inView(hero, 0.3)) {
+          pixelSwap(update).then(refocus);
+          return;
+        }
         runTransition({
-          kind: shared ? "close" : "close-plain",
+          kind: "close",
           name: "project-cover",
-          from: shared,
-          update: () => {
-            commit();
-            revealCard(from, scrollWindow);
-          },
+          from: hero,
+          update,
           to: () => q(`[data-cover-card="${from}"]`),
-        }).then(() => q(`[data-card-link="${from}"]`)?.focus({ preventScroll: true }));
+        }).then(refocus);
       } else if (from && routeId) {
-        const next = q(`[data-cover-next="${routeId}"]`);
-        const shared = inView(next, 0.2) ? next : null;
-        runTransition({
-          kind: shared ? "swap" : "swap-plain",
-          name: "project-cover",
-          from: shared,
-          update: commit,
-          to: () => q(`[data-cover-hero="${routeId}"]`),
-        });
+        // case study to case study: the page breaks into pixels and resolves as the next one
+        pixelSwap(commit);
       }
     });
   }, [routeId, scrollTo]);

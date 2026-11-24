@@ -2,7 +2,9 @@ import { useRef, useState } from "react";
 import { AnimatePresence, motion, useMotionValue, useSpring } from "motion/react";
 import { ArrowUpRight, Plus } from "@phosphor-icons/react";
 import { experiences } from "@/content/site";
-import { useFinePointer, useReducedMotionPref } from "@/lib/use-media";
+import { useFinePointer, useIsDesktop, useReducedMotionPref } from "@/lib/use-media";
+import BlurTitle from "@/components/BlurTitle";
+import Scramble from "@/components/Scramble";
 
 /*
   Experience as an index. Hovering a row floats that company's logo next to
@@ -16,6 +18,7 @@ export default function Work() {
   const sectionRef = useRef<HTMLElement>(null);
   const reduce = useReducedMotionPref();
   const fine = useFinePointer();
+  const desktop = useIsDesktop();
   const [hovered, setHovered] = useState<number | null>(null);
   const [open, setOpen] = useState<string | null>(experiences[0].id);
 
@@ -40,16 +43,22 @@ export default function Work() {
       onPointerMove={fine ? onMove : undefined}
     >
       <div className="mx-auto max-w-[1680px]">
-        <h2 className="type-title">Where I’ve worked.</h2>
+        <BlurTitle className="type-title">Where I’ve worked.</BlurTitle>
 
-        <ul className="mt-14 border-t border-hairline md:mt-20" onPointerLeave={() => setHovered(null)}>
+        {/* the floating logo is the cursor here: the custom cursor keeps only its dot */}
+        <ul
+          data-spot-group
+          data-cursor={fine && desktop ? "dot" : undefined}
+          className="mt-14 border-t border-hairline md:mt-20"
+          onPointerLeave={() => setHovered(null)}
+        >
           {experiences.map((exp, i) => {
             const isOpen = open === exp.id;
             const dim = hovered !== null && hovered !== i && !isOpen;
             return (
               <li
                 key={exp.id}
-                className={`border-b border-hairline transition-opacity duration-500 ${dim ? "opacity-40" : "opacity-100"}`}
+                className={`spot spot-row border-b border-hairline transition-opacity duration-500 ${dim ? "opacity-40" : "opacity-100"}`}
                 onPointerEnter={() => setHovered(i)}
               >
                 <h3>
@@ -61,7 +70,7 @@ export default function Work() {
                     className="group grid w-full grid-cols-[1fr_auto] items-center gap-x-6 gap-y-1 py-6 text-left md:grid-cols-[9rem_minmax(0,1.1fr)_minmax(0,1fr)_auto] md:py-8"
                   >
                     <span className="type-meta order-3 col-span-2 text-muted md:order-none md:col-span-1">
-                      {exp.period}
+                      <Scramble text={exp.period} hover duration={600} />
                     </span>
                     <span className="text-[clamp(1.6rem,3.2vw,3rem)] font-[600] leading-none tracking-[-0.035em] [font-stretch:112%] transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-2">
                       {exp.company}

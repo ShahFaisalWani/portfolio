@@ -32,3 +32,6 @@ dist-ssr
 
 # prerender build (scripts/prerender.mjs)
 .ssr
+
+# TypeScript incremental build cache
+*.tsbuildinfo
